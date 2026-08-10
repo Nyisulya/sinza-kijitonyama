@@ -1,0 +1,254 @@
+{% extends 'base.html' %}
+
+{% block title %}Kuitana Majina (Roll Call) - Ibada ya {{ ibada.mwenyeji }}{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Premium Roll Call Custom Styles */
+    .rollcall-container {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .rollcall-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .rollcall-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 30px;
+    }
+    
+    .rollcall-item {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 16px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+        cursor: pointer;
+    }
+    
+    .rollcall-item:hover {
+        border-color: var(--primary-light);
+        box-shadow: var(--shadow-md);
+    }
+    
+    .rollcall-item.present {
+        border-color: rgba(34, 197, 94, 0.4);
+        background-color: rgba(34, 197, 94, 0.02);
+    }
+    
+    .rollcall-info {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .rollcall-name {
+        font-weight: 700;
+        font-size: 16px;
+        color: var(--text-main);
+    }
+    
+    .rollcall-family {
+        font-size: 13px;
+        color: var(--text-muted);
+        margin-top: 2px;
+    }
+    
+    /* Styled custom iOS switch */
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 52px;
+        height: 28px;
+    }
+    
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #cbd5e1;
+        transition: .3s;
+        border-radius: 34px;
+    }
+    
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 20px;
+        width: 20px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .3s;
+        border-radius: 50%;
+    }
+    
+    input:checked + .slider {
+        background-color: var(--rsvp-yes);
+    }
+    
+    input:focus + .slider {
+        box-shadow: 0 0 1px var(--rsvp-yes);
+    }
+    
+    input:checked + .slider:before {
+        transform: translateX(24px);
+    }
+
+    .rollcall-actions {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .btn-action-small {
+        flex: 1;
+        padding: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        background-color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        transition: var(--transition);
+    }
+
+    .btn-action-small:hover {
+        background-color: var(--background);
+        border-color: var(--text-muted);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="rollcall-container">
+    
+    <div class="rollcall-header">
+        <h1 style="font-size: 26px; font-weight: 800; color: var(--primary);">Kuitana Majina (Roll Call)</h1>
+        <p style="color: var(--text-muted); font-size: 15px; margin-top: 5px;">
+            Ibada ya Kanda kwa Familia ya **{{ ibada.mwenyeji }}** leo
+        </p>
+    </div>
+
+    <!-- Quick action buttons -->
+    <div class="rollcall-actions">
+        <button type="button" class="btn-action-small" id="btnSelectAll">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            Weka Wote Tiki
+        </button>
+        <button type="button" class="btn-action-small" id="btnDeselectAll">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line></svg>
+            Ondoa Tiki Zote
+        </button>
+    </div>
+
+    <form action="{% url 'save_attendance' ibada.id %}" method="post">
+        {% csrf_token %}
+        
+        <div class="rollcall-list">
+            {% for mshiriki in washiriki %}
+                <div class="rollcall-item {% if mshiriki.id in rsvp_yes_member_ids %}present{% endif %}" onclick="toggleSwitch(this)">
+                    <div class="rollcall-info">
+                        <span class="rollcall-name">{{ mshiriki.jina }}</span>
+                        <span class="rollcall-family">
+                            {% if mshiriki.familia %}{{ mshiriki.familia }}{% else %}Hana Familia{% endif %}
+                            {% if mshiriki.id in rsvp_yes_member_ids %}
+                                <strong style="color: var(--rsvp-yes); margin-left: 8px;">(Alithibitisha kuja)</strong>
+                            {% endif %}
+                        </span>
+                    </div>
+                    
+                    <label class="switch" onclick="event.stopPropagation();">
+                        <input type="checkbox" name="present_members" value="{{ mshiriki.id }}" class="member-checkbox"
+                               {% if mshiriki.id in rsvp_yes_member_ids %}checked{% endif %}
+                               onchange="updateItemClass(this)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            {% empty %}
+                <div class="card" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                    Hakuna washiriki waliosajiliwa kwenye kanda kwa sasa.
+                </div>
+            {% endfor %}
+        </div>
+
+        {% if washiriki %}
+            <button type="submit" class="btn-primary btn-block" style="padding: 16px; font-size: 16px; font-weight: 700; background: linear-gradient(135deg, var(--secondary), var(--secondary-light));">
+                Hifadhi Mahudhurio & Tuma SMS za Shukrani
+            </button>
+        {% endif %}
+        
+        <a href="{% url 'leader_dashboard' %}" class="btn-secondary btn-block" style="margin-top: 12px; padding: 12px; text-align: center; color: var(--text-main); border-color: var(--border);">
+            Ghairi (Rudi Dashibodi)
+        </a>
+    </form>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Toggle switch when clicking on the list item card itself (improved mobile experience!)
+    function toggleSwitch(item) {
+        const checkbox = item.querySelector('.member-checkbox');
+        if (checkbox) {
+            checkbox.checked = !checkbox.checked;
+            updateItemClass(checkbox);
+        }
+    }
+    
+    // Update card background color based on checkbox state
+    function updateItemClass(checkbox) {
+        const item = checkbox.closest('.rollcall-item');
+        if (checkbox.checked) {
+            item.classList.add('present');
+        } else {
+            item.classList.remove('present');
+        }
+    }
+
+    // Select/Deselect All buttons logic
+    const btnSelectAll = document.getElementById('btnSelectAll');
+    const btnDeselectAll = document.getElementById('btnDeselectAll');
+    const checkboxes = document.querySelectorAll('.member-checkbox');
+
+    if (btnSelectAll) {
+        btnSelectAll.addEventListener('click', () => {
+            checkboxes.forEach(cb => {
+                cb.checked = true;
+                updateItemClass(cb);
+            });
+        });
+    }
+
+    if (btnDeselectAll) {
+        btnDeselectAll.addEventListener('click', () => {
+            checkboxes.forEach(cb => {
+                cb.checked = false;
+                updateItemClass(cb);
+            });
+        });
+    }
+</script>
+{% endblock %}

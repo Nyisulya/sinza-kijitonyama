@@ -1,0 +1,180 @@
+from django.test import TestCase, Client
+from django.utils import timezone
+from django.core.exceptions import ValidationError
+from django.urls import reverse
+from .models import Mshiriki, Ibada, Uthibitisho, SMSConfig
+
+class KandaModelsTestCase(TestCase):
+    def test_mshiriki_phone_cleaning_local(self):
+        # Local format starting with 07 should clean to 2557
+        member = Mshiriki.objects.create(
+            jina="Neema John",
+            simu="0712345678",
+            familia="Familia ya John"
+        )
+        self.assertEqual(member.simu, "255712345678")
+
+    def test_mshiriki_phone_cleaning_international(self):
+        # International format starting with 255 should keep it
+        member = Mshiriki.objects.create(
+            jina="Baraka Mwita",
+            simu="255688112233",
+            familia=""
+        )
+        self.assertEqual(member.simu, "255688112233")
+
+    def test_mshiriki_invalid_phone_raises_error(self):
+        # Invalid phone should raise validation error
+        member = Mshiriki(jina="Invalid Person", simu="0222123456")
+        with self.assertRaises(ValidationError):
+            member.full_clean()
+
+    def test_ibada_str_representation(self):
+        # Checking String formatting for meetings
+        time = timezone.now()
+        ibada = Ibada.objects.create(
+            mwenyeji="Mzee Joshua",
+            tarehe_muda=time,
+            ramani_link="https://maps.google.com/?q=sinza"
+        )
+        expected_str = f"Ibada kwa Mzee Joshua - {time.strftime('%d/%m/%Y saa %H:%M')}"
+        self.assertEqual(str(ibada), expected_str)
+
+    def test_sms_config_singleton(self):
+        # Only one SMSConfig can exist
+        SMSConfig.objects.create(api_key="KEY1", secret_key="SEC1")
+        config2 = SMSConfig(api_key="KEY2", secret_key="SEC2")
+        with self.assertRaises(ValidationError):
+            config2.full_clean()
+
+
+class KandaViewsTestCase(TestCase):
+    def setUp(self):
+        self.client = Client()
+        session = self.client.session
+        session['is_leader'] = True
+        session.save()
+        
+        self.mshiriki = Mshiriki.objects.create(
+            jina="John Joseph",
+            simu="0788998899",
+            familia="Joseph Family"
+        )
+        self.ibada = Ibada.objects.create(
+            mwenyeji="Mama Eliya",
+            tarehe_muda=timezone.now() + timezone.timedelta(days=1),
+            ramani_link="https://maps.google.com"
+        )
+
+    def test_home_view_status(self):
+        response = self.client.get(reverse('home'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Mama Eliya")
+        self.assertContains(response, "John Joseph")
+
+    def test_register_member_view(self):
+        response = self.client.post(reverse('register_member'), {
+            'jina': 'Amani Kessy',
+            'simu': '0754112233',
+            'familia': 'Kessy Family'
+        })
+        self.assertRedirects(response, reverse('home'))
+        self.assertTrue(Mshiriki.objects.filter(jina="Amani Kessy").exists())
+
+    def test_submit_rsvp_view(self):
+        response = self.client.post(reverse('submit_rsvp', args=[self.ibada.id]), {
+            'mshiriki_id': self.mshiriki.id,
+            'status': 'NITAKUJA',
+            'maoni': 'Nitaleta zawadi'
+        })
+        self.assertRedirects(response, reverse('home'))
+        self.assertTrue(Uthibitisho.objects.filter(
+            mshiriki=self.mshiriki,
+            ibada=self.ibada,
+            status='NITAKUJA',
+            maoni='Nitaleta zawadi'
+        ).exists())
+
+    def test_create_ibada_view(self):
+        # Verify that we can create a meeting directly from dashboard POST
+        response = self.client.post(reverse('create_ibada'), {
+            'mwenyeji': 'Kaka John Mwaseba',
+            'tarehe_muda': '2026-08-16T16:00',
+            'ramani_link': 'https://maps.google.com',
+            'maelekezo': 'Sinza Mori',
+            'masomo': 'Somo la 6'
+        })
+        self.assertRedirects(response, reverse('leader_dashboard'))
+        self.assertTrue(Ibada.objects.filter(mwenyeji='Kaka John Mwaseba').exists())
+        # Past meeting should be completed
+        self.assertTrue(Ibada.objects.get(id=self.ibada.id).is_completed)
+
+    def test_take_attendance_view(self):
+        # Pre-select check: John Joseph is not preselected because he has no RSVP yes
+        # Let's create an RSVP Yes for self.mshiriki
+        Uthibitisho.objects.create(mshiriki=self.mshiriki, ibada=self.ibada, status='NITAKUJA')
+        
+        response = self.client.get(reverse('take_attendance', args=[self.ibada.id]))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "John Joseph")
+        self.assertContains(response, "Alithibitisha kuja")
+
+    def test_save_attendance_view(self):
+        # Let's save attendance where self.mshiriki is present
+        response = self.client.post(reverse('save_attendance', args=[self.ibada.id]), {
+            'present_members': [self.mshiriki.id]
+        })
+        self.assertRedirects(response, reverse('leader_dashboard'))
+        
+        # Verify Mahudhurio entry exists
+        from .models import Mahudhurio
+        self.assertTrue(Mahudhurio.objects.filter(
+            ibada=self.ibada,
+            mshiriki=self.mshiriki,
+            is_present=True
+        ).exists())
+        
+        # Meeting should be marked completed
+        self.ibada.refresh_from_db()
+        self.assertTrue(self.ibada.is_completed)
+
+    def test_attendance_history_view(self):
+        # Mark meeting as completed
+        self.ibada.is_completed = True
+        self.ibada.save()
+        
+        # Create a mahudhurio record
+        from .models import Mahudhurio
+        Mahudhurio.objects.create(ibada=self.ibada, mshiriki=self.mshiriki, is_present=True)
+        
+        response = self.client.get(reverse('attendance_history'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Mama Eliya")
+        self.assertContains(response, "Waliohudhuria: 1")
+
+
+class KandaSecurityTestCase(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.ibada = Ibada.objects.create(
+            mwenyeji="Test Host",
+            tarehe_muda=timezone.now() + timezone.timedelta(days=1)
+        )
+        SMSConfig.objects.create(leader_passcode="kanda123")
+
+    def test_dashboard_redirects_unauthorized(self):
+        # Accessing dashboard without session should redirect to login
+        response = self.client.get(reverse('leader_dashboard'))
+        self.assertRedirects(response, reverse('leader_login'))
+
+    def test_login_with_correct_passcode(self):
+        # Post correct passcode
+        response = self.client.post(reverse('leader_login'), {'passcode': 'kanda123'})
+        self.assertRedirects(response, reverse('leader_dashboard'))
+        self.assertTrue(self.client.session.get('is_leader'))
+
+    def test_login_with_incorrect_passcode(self):
+        # Post incorrect passcode
+        response = self.client.post(reverse('leader_login'), {'passcode': 'wrong_one'})
+        self.assertEqual(response.status_code, 200) # Re-renders login page
+        self.assertFalse(self.client.session.get('is_leader'))
