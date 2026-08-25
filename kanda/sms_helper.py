@@ -1,3 +1,4 @@
+import os
 import requests
 import json
 import base64
@@ -458,16 +459,30 @@ def check_nextsms_balance(config=None):
     }
 
 
+DEFAULT_NEXT_SMS_API_KEY = os.getenv('NEXTSMS_API_KEY', 'd94dc48d2a2d80f7137365afdbce6d90')
+DEFAULT_NEXT_SMS_SECRET = os.getenv('NEXTSMS_SECRET', 'felicianjoseph575@gmail.com')
+DEFAULT_SENDER_ID = os.getenv('NEXTSMS_SENDER_ID', 'IBADA SIFA')
+DEFAULT_PASSCODE = os.getenv('LEADER_PASSCODE', '2010')
+
 def get_active_config():
-    """Rudisha SMSConfig inayotumika, ukiunda moja ya mockup ikiwa hakuna."""
+    """Rudisha SMSConfig inayotumika ikiwa na credentials rasmi za NextSMS."""
     config = SMSConfig.objects.filter(is_active=True).first()
     if not config:
         config = SMSConfig.objects.create(
-            api_key="MOCK_KEY",
-            secret_key="MOCK_SECRET",
-            sender_id="IBADA SIFA",
+            api_key=DEFAULT_NEXT_SMS_API_KEY,
+            secret_key=DEFAULT_NEXT_SMS_SECRET,
+            sender_id=DEFAULT_SENDER_ID,
+            leader_passcode=DEFAULT_PASSCODE,
             is_active=True
         )
+    elif config.api_key in ['MOCK_KEY', '', None] or config.secret_key in ['MOCK_SECRET', '', None]:
+        config.api_key = DEFAULT_NEXT_SMS_API_KEY
+        config.secret_key = DEFAULT_NEXT_SMS_SECRET
+        config.sender_id = DEFAULT_SENDER_ID
+        config.leader_passcode = DEFAULT_PASSCODE
+        config.is_active = True
+        config.save()
+
     return config
 
 
