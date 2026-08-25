@@ -8,7 +8,8 @@ from .sms_helper import (
     send_rsvp_reminder_sms,
     send_test_sms,
     check_nextsms_balance,
-    is_mock_mode
+    is_mock_mode,
+    get_active_config
 )
 from functools import wraps
 
