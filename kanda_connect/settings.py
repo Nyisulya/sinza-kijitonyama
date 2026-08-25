@@ -28,6 +28,30 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+# CSRF Trusted Origins Configuration
+# Inaruhusu fomu (Forms) zitumwe bila kosa la 403 unapokuwa kwenye VPS, IP, au Domain yoyote
+CSRF_TRUSTED_ORIGINS = [
+    'http://127.0.0.1:8000',
+    'http://localhost:8000',
+    'http://127.0.0.1',
+    'http://localhost',
+    'http://0.0.0.0',
+    'http://0.0.0.0:8000',
+]
+
+# Ongeza domains au IPs za ziada kutoka kwenye mazingira (Environment)
+env_csrf = os.getenv('CSRF_TRUSTED_ORIGINS', '')
+if env_csrf:
+    for origin in env_csrf.split(','):
+        origin = origin.strip()
+        if origin and origin not in CSRF_TRUSTED_ORIGINS:
+            CSRF_TRUSTED_ORIGINS.append(origin)
+
+# Inasaidia reverse proxy ya Nginx / Gunicorn
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = False
+
 
 # Application definition
 
