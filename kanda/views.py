@@ -300,7 +300,7 @@ def attendance_history(request):
 @leader_required
 def sms_settings(request):
     """Ukurasa wa mazingira ya SMS (API keys, templates, neno la siri, jaribio la SMS, na salio)."""
-    config = SMSConfig.objects.filter(is_active=True).first()
+    config = get_active_config()
     test_result = None
     balance_info = None
 

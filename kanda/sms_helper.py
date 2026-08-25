@@ -459,10 +459,10 @@ def check_nextsms_balance(config=None):
     }
 
 
-DEFAULT_NEXT_SMS_API_KEY = os.getenv('NEXTSMS_API_KEY', '').strip()
-DEFAULT_NEXT_SMS_SECRET = os.getenv('NEXTSMS_SECRET', '').strip()
-DEFAULT_SENDER_ID = os.getenv('NEXTSMS_SENDER_ID', 'IBADA SIFA').strip()
-DEFAULT_PASSCODE = os.getenv('LEADER_PASSCODE', '2010').strip()
+DEFAULT_NEXT_SMS_API_KEY = os.getenv('NEXTSMS_API_KEY', 'd94dc48d2a2d80f7137365afdbce6d90').strip() or 'd94dc48d2a2d80f7137365afdbce6d90'
+DEFAULT_NEXT_SMS_SECRET = os.getenv('NEXTSMS_SECRET', 'felicianjoseph575@gmail.com').strip() or 'felicianjoseph575@gmail.com'
+DEFAULT_SENDER_ID = os.getenv('NEXTSMS_SENDER_ID', 'IBADA SIFA').strip() or 'IBADA SIFA'
+DEFAULT_PASSCODE = os.getenv('LEADER_PASSCODE', '2010').strip() or '2010'
 
 def get_active_config():
     """Rudisha SMSConfig inayotumika ikiwa na credentials rasmi za NextSMS."""
@@ -475,7 +475,7 @@ def get_active_config():
             leader_passcode=DEFAULT_PASSCODE,
             is_active=True
         )
-    elif config.api_key in ['MOCK_KEY', '', None] or config.secret_key in ['MOCK_SECRET', '', None]:
+    elif not config.api_key or config.api_key in ['MOCK_KEY', ''] or not config.secret_key or config.secret_key in ['MOCK_SECRET', '']:
         config.api_key = DEFAULT_NEXT_SMS_API_KEY
         config.secret_key = DEFAULT_NEXT_SMS_SECRET
         config.sender_id = DEFAULT_SENDER_ID
