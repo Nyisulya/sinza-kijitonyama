@@ -74,18 +74,37 @@ WSGI_APPLICATION = 'kanda_connect.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-# Database Configuration (PostgreSQL by Default)
-# On VPS, configure PostgreSQL: database 'sinza', password 'nyisu'
-DATABASES = {
-    'default': {
-        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
-        'NAME': os.getenv('DB_NAME', 'sinza'),
-        'USER': os.getenv('DB_USER', 'postgres'),
-        'PASSWORD': os.getenv('DB_PASSWORD', 'nyisu'),
-        'HOST': os.getenv('DB_HOST', 'localhost'),
-        'PORT': os.getenv('DB_PORT', '5432'),
+# Database Configuration (Smart PostgreSQL with Auto-Fallback)
+# Kwenye VPS: Inatumia PostgreSQL (sinza / nyisu) mara tu psycopg2 inapokuwa imewekwa.
+# Kwenye Local Windows: Inatumia SQLite ili uweze kurun bila kuhitaji psycopg2 ya Windows.
+try:
+    import psycopg2  # noqa
+    HAS_PSYCOPG = True
+except ImportError:
+    try:
+        import psycopg  # noqa
+        HAS_PSYCOPG = True
+    except ImportError:
+        HAS_PSYCOPG = False
+
+if HAS_PSYCOPG and os.getenv('USE_SQLITE', 'False') != 'True':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('DB_NAME', 'sinza'),
+            'USER': os.getenv('DB_USER', 'postgres'),
+            'PASSWORD': os.getenv('DB_PASSWORD', 'nyisu'),
+            'HOST': os.getenv('DB_HOST', 'localhost'),
+            'PORT': os.getenv('DB_PORT', '5432'),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
