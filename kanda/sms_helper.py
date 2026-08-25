@@ -546,6 +546,10 @@ def send_bulk_ibada_sms(ibada):
     if ibada.ramani_link and ibada.ramani_link.strip():
         details_lines.append(f"- Ramani: {ibada.ramani_link.strip()}")
 
+    leader_phone = os.getenv('LEADER_PHONE', '0628549424').strip()
+    if leader_phone:
+        details_lines.append(f"- Mawasiliano ya Kiongozi: {leader_phone}")
+
     details_block = "\n".join(details_lines)
 
     for member in active_members:
