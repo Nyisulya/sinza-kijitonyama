@@ -459,10 +459,10 @@ def check_nextsms_balance(config=None):
     }
 
 
-DEFAULT_NEXT_SMS_API_KEY = os.getenv('NEXTSMS_API_KEY', 'd94dc48d2a2d80f7137365afdbce6d90')
-DEFAULT_NEXT_SMS_SECRET = os.getenv('NEXTSMS_SECRET', 'felicianjoseph575@gmail.com')
-DEFAULT_SENDER_ID = os.getenv('NEXTSMS_SENDER_ID', 'IBADA SIFA')
-DEFAULT_PASSCODE = os.getenv('LEADER_PASSCODE', '2010')
+DEFAULT_NEXT_SMS_API_KEY = os.getenv('NEXTSMS_API_KEY', '').strip()
+DEFAULT_NEXT_SMS_SECRET = os.getenv('NEXTSMS_SECRET', '').strip()
+DEFAULT_SENDER_ID = os.getenv('NEXTSMS_SENDER_ID', 'IBADA SIFA').strip()
+DEFAULT_PASSCODE = os.getenv('LEADER_PASSCODE', '2010').strip()
 
 def get_active_config():
     """Rudisha SMSConfig inayotumika ikiwa na credentials rasmi za NextSMS."""
