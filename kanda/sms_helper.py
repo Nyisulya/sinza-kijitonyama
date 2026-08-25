@@ -555,7 +555,7 @@ def send_bulk_ibada_sms(ibada):
     for member in active_members:
         message = (
             f"MANZESE SDA, SINZA NA KIJITONYAMA\n\n"
-            f"Habari {member.jina.strip()}, tunakukaribisha kwenye Ibada ya Kanda ya "Anza na Bwana" wiki hii:\n\n"
+            f"Habari {member.jina.strip()}, tunakukaribisha kwenye Ibada ya Kanda ya 'Anza na Bwana' wiki hii:\n\n"
             f"{details_block}\n\n"
             f"Karibu sana tubarikiwe pamoja!"
         )
@@ -615,7 +615,7 @@ def send_attendance_sms(ibada, present_members, absent_members, send_to_present=
         for member in present_members:
             message = (
                 f"MANZESE SDA, SINZA NA KIJITONYAMA\n\n"
-                f"Habari {member.jina.strip()}, asante sana kwa kushiriki Ibada ya "Anza na Bwana" leo kwa familia ya {ibada.mwenyeji.strip()}.\n\n"
+                f"Habari {member.jina.strip()}, asante sana kwa kushiriki Ibada ya 'Anza na Bwana' leo kwa familia ya {ibada.mwenyeji.strip()}.\n\n"
                 f"Uwepo wako ulikuwa baraka kubwa kwetu sote. Mungu akubariki na kukuinua katika juma hili!"
             )
             is_sent = send_single_sms(member.simu, message, config, mshiriki=member, ibada=ibada, sms_type='THANK_YOU')
@@ -629,8 +629,8 @@ def send_attendance_sms(ibada, present_members, absent_members, send_to_present=
         for member in absent_members:
             message = (
                 f"MANZESE SDA, SINZA NA KIJITONYAMA\n\n"
-                f"Habari {member.jina.strip()}, tulikumiss sana kwenye Ibada ya "Anza na Bwana" leo kwa familia ya {ibada.mwenyeji.strip()}.\n\n"
-                f"Tunakuombea heri na baraka za Mungu katika kila jambo lako. Karibu sana tujumuike pamoja katika ibada inayofuata ya "Anza na Bwana"!"
+                f"Habari {member.jina.strip()}, tulikumiss sana kwenye Ibada ya 'Anza na Bwana' leo kwa familia ya {ibada.mwenyeji.strip()}.\n\n"
+                f"Tunakuombea heri na baraka za Mungu katika kila jambo lako. Karibu sana tujumuike pamoja katika ibada inayofuata ya 'Anza na Bwana'!"
             )
             is_sent = send_single_sms(member.simu, message, config, mshiriki=member, ibada=ibada, sms_type='ENCOURAGEMENT')
             if is_sent:
