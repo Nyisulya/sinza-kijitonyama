@@ -92,7 +92,7 @@ if HAS_PSYCOPG and os.getenv('USE_SQLITE', 'False') != 'True':
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
             'NAME': os.getenv('DB_NAME', 'sinza'),
-            'USER': os.getenv('DB_USER', 'postgres'),
+            'USER': os.getenv('DB_USER', 'sinza_user'),
             'PASSWORD': os.getenv('DB_PASSWORD', 'nyisu'),
             'HOST': os.getenv('DB_HOST', 'localhost'),
             'PORT': os.getenv('DB_PORT', '5432'),
