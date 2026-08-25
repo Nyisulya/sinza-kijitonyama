@@ -512,8 +512,12 @@ def format_ibada_time(ibada):
 
 def send_bulk_ibada_sms(ibada):
     """
-    Sends invitation and reminder SMS to all active members for a given Ibada session.
-    Returns (success_count, fail_count, use_mockup).
+    Hutuma SMS za mwaliko kwa washiriki wote zikiwa zimetenganisha wazi:
+    - Mwenyeji
+    - Siku na Muda
+    - Somo (kama lipo)
+    - Maelekezo ya Mahali (kama yapo)
+    - Kiungo cha Google Maps (kama kipo)
     """
     config = get_active_config()
     use_mockup = is_mock_mode(config)
@@ -524,26 +528,33 @@ def send_bulk_ibada_sms(ibada):
 
     success_count = 0
     fail_count = 0
-
     time_str = format_ibada_time(ibada)
 
-    location_info = ""
-    if ibada.ramani_link:
-        location_info = f"Ramani: {ibada.ramani_link}"
-    elif ibada.maelekezo:
-        location_info = f"Maelekezo: {ibada.maelekezo}"
+    # Kusanya vipengele vyote vya taarifa
+    details_lines = [
+        f"- Mwenyeji: Familia ya {ibada.mwenyeji.strip()}",
+        f"- Muda: {time_str}"
+    ]
+
+    somo_text = getattr(ibada, 'masomo', '') or getattr(ibada, 'somo', '')
+    if somo_text and somo_text.strip():
+        details_lines.append(f"- Somo: {somo_text.strip()}")
+
+    if ibada.maelekezo and ibada.maelekezo.strip():
+        details_lines.append(f"- Mahali: {ibada.maelekezo.strip()}")
+
+    if ibada.ramani_link and ibada.ramani_link.strip():
+        details_lines.append(f"- Ramani: {ibada.ramani_link.strip()}")
+
+    details_block = "\n".join(details_lines)
 
     for member in active_members:
-        # Safisha template isirudie neno 'saa' kabla ya tarehe
-        tpl = config.sms_template or "MANZESE SDA, SINZA NA KIJITONYAMA:\nHabari {jina}, ibada yetu ya kanda itafanyika kwa familia ya {mwenyeji} {muda}. Karibu sana! {ramani_link}"
-        tpl = tpl.replace("saa {muda}", "{muda}")
-        
-        message = tpl.format(
-            jina=member.jina.strip(),
-            mwenyeji=ibada.mwenyeji.strip(),
-            muda=time_str,
-            ramani_link=location_info
-        ).strip()
+        message = (
+            f"MANZESE SDA, SINZA NA KIJITONYAMA\n\n"
+            f"Habari {member.jina.strip()}, tunakukaribisha kwenye Ibada ya Kanda ya wiki hii:\n\n"
+            f"{details_block}\n\n"
+            f"Karibu sana tubarikiwe pamoja!"
+        )
 
         is_sent = send_single_sms(member.simu, message, config, mshiriki=member, ibada=ibada, sms_type='INVITATION')
         if is_sent:
