@@ -153,6 +153,8 @@ def send_single_sms(dest_phone, message, config=None, mshiriki=None, ibada=None,
         return True
 
     sender_id = (getattr(config, 'sender_id', '') or 'IBADA SIFA').strip()
+    api_k = (getattr(config, 'api_key', None) or DEFAULT_NEXT_SMS_API_KEY or '').strip()
+    secret_k = (getattr(config, 'secret_key', None) or DEFAULT_NEXT_SMS_SECRET or '').strip()
     auth_headers = get_auth_headers_list(api_k, secret_k)
     if not auth_headers:
         err = "Taarifa za uthibitisho (Credentials) za Next SMS hazipo."
@@ -275,6 +277,8 @@ def send_test_sms(dest_phone, test_message, config=None):
         }
 
     sender_id = (getattr(config, 'sender_id', '') or 'IBADA SIFA').strip()
+    api_k = (getattr(config, 'api_key', None) or DEFAULT_NEXT_SMS_API_KEY or '').strip()
+    secret_k = (getattr(config, 'secret_key', None) or DEFAULT_NEXT_SMS_SECRET or '').strip()
     auth_headers = get_auth_headers_list(api_k, secret_k)
     if not auth_headers:
         return {
