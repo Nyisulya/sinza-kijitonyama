@@ -639,3 +639,41 @@ def send_attendance_sms(ibada, present_members, absent_members, send_to_present=
                 fail_count += 1
 
     return success_count, fail_count, use_mockup
+
+def send_custom_broadcast_sms(custom_message, recipient_type='ALL', specific_member_id=None):
+    """
+    Hutuma ujumbe maalum (kama salamu za Sabato, tangazo, taarifa) kwa washiriki.
+    Inabadilisha {jina} kuwa jina halisi la kila mshiriki.
+    """
+    config = get_active_config()
+    use_mockup = is_mock_mode(config)
+
+    if specific_member_id:
+        target_members = Mshiriki.objects.filter(id=specific_member_id, is_active=True)
+    else:
+        target_members = Mshiriki.objects.filter(is_active=True)
+
+    if not target_members.exists():
+        return 0, 0, use_mockup
+
+    success_count = 0
+    fail_count = 0
+    HEADER_PREFIX = "MANZESE SDA, SINZA NA KIJITONYAMA\n\n"
+
+    for member in target_members:
+        # Badilisha {jina} na jina halisi la mshiriki
+        msg_body = custom_message.replace("{jina}", member.jina.strip())
+        
+        # Hakikisha header rasmi ipo
+        if not msg_body.strip().startswith("MANZESE SDA"):
+            full_msg = f"{HEADER_PREFIX}{msg_body.strip()}"
+        else:
+            full_msg = msg_body.strip()
+
+        is_sent = send_single_sms(member.simu, full_msg, config, mshiriki=member, ibada=None, sms_type='CUSTOM')
+        if is_sent:
+            success_count += 1
+        else:
+            fail_count += 1
+
+    return success_count, fail_count, use_mockup

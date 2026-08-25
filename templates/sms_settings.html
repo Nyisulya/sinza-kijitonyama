@@ -48,6 +48,102 @@
         </div>
     </div>
 
+    <!-- Kadi ya Kutuma Ujumbe Maalum / Salamu / Tangazo (Custom Broadcast) -->
+    <div class="card" style="margin-bottom: 25px; border: 1.5px solid #3b82f6; background: #ffffff; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06); overflow: hidden;">
+        <div style="background: linear-gradient(135deg, #1e3a8a, #2563eb); padding: 18px 24px; color: #ffffff; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 42px; height: 42px; border-radius: 10px; background: rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; font-size: 22px;">
+                    📢
+                </div>
+                <div>
+                    <h3 style="margin: 0; font-size: 19px; font-weight: 800; color: #ffffff;">Tuma Ujumbe Maalum / Salamu kwa Washiriki</h3>
+                    <p style="margin: 0; font-size: 13px; color: rgba(255, 255, 255, 0.85);">Tuma salamu za Sabato, tangazo la dharura, au ujumbe maalum ambapo kila mtu atapokea kwa jina lake.</p>
+                </div>
+            </div>
+            <span style="background: #facc15; color: #1e3a8a; font-size: 11px; font-weight: 800; padding: 5px 12px; border-radius: 20px; text-transform: uppercase;">Tangazo Rasmi</span>
+        </div>
+
+        <form method="POST" style="padding: 24px;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="send_custom_broadcast">
+
+            <!-- Walengwa Selector -->
+            <div class="form-group" style="margin-bottom: 18px;">
+                <label style="display: block; font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">
+                    🎯 Chagua Nani Apokee Ujumbe Huu:
+                </label>
+                <select name="recipient_type" id="recipient_type" class="form-control" onchange="toggleRecipientSelect(this.value)" style="width: 100%; padding: 12px 16px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 14px; font-weight: 600; color: #0f172a; background: #f8fafc;">
+                    <option value="ALL">👥 Washiriki Wote Waliopo Kwenye Mfumo (Jumla: {{ washiriki|length }} Washiriki)</option>
+                    <option value="SINGLE">👤 Mshiriki Mmoja Maalum Pekee</option>
+                </select>
+            </div>
+
+            <!-- Mshiriki Mmoja Dropdown -->
+            <div class="form-group" id="single_member_container" style="display: none; margin-bottom: 18px;">
+                <label style="display: block; font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">
+                    👤 Chagua Jina la Mshiriki:
+                </label>
+                <select name="specific_member_id" class="form-control" style="width: 100%; padding: 12px 16px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 14px;">
+                    <option value="">-- Chagua Mshiriki --</option>
+                    {% for m in washiriki %}
+                        <option value="{{ m.id }}">{{ m.jina }} ({{ m.simu }}) - {{ m.familia|default:"Kanda" }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Sanduku la Ujumbe -->
+            <div class="form-group" style="margin-bottom: 18px;">
+                <label style="display: block; font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">
+                    ✍️ Andika Ujumbe Wako Hapa:
+                </label>
+                <textarea name="custom_message" id="custom_message" rows="4" class="form-control" placeholder="Mfano: Habari {jina},\n\nTunakutakia Sabato Njema yenye amani na furaha ya Kristo. Ubarikiwe sana!" required style="width: 100%; padding: 14px 16px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 14.5px; line-height: 1.6; font-family: inherit; resize: vertical;"></textarea>
+                
+                <div style="margin-top: 8px;">
+                    <div style="font-size: 12.5px; color: #0369a1; background: #e0f2fe; padding: 8px 14px; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px;">
+                        💡 <strong>Kidokezo:</strong> Weka <code>{jina}</code> popote ndani ya ujumbe ili mfumo umtaje kila mshiriki kwa jina lake halisi!
+                    </div>
+                </div>
+            </div>
+
+            <!-- Violezo vya Haraka (Quick Templates) -->
+            <div style="margin-bottom: 22px; background: #f8fafc; border: 1px dashed #cbd5e1; padding: 14px 18px; border-radius: 12px;">
+                <div style="font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 8px; text-transform: uppercase;">⚡ Maneno ya Haraka (Bonyeza Kujaza Moja kwa Moja):</div>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                    <button type="button" onclick="setTemplate('sabato')" style="background: #ffffff; border: 1px solid #94a3b8; padding: 7px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 600; cursor: pointer; color: #1e3a8a;">🕊️ Sabato Njema</button>
+                    <button type="button" onclick="setTemplate('juma')" style="background: #ffffff; border: 1px solid #94a3b8; padding: 7px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 600; cursor: pointer; color: #1e3a8a;">✨ Mwanzo wa Juma</button>
+                    <button type="button" onclick="setTemplate('maombi')" style="background: #ffffff; border: 1px solid #94a3b8; padding: 7px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 600; cursor: pointer; color: #1e3a8a;">🙏 Kikumbusho cha Maombi</button>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary btn-block" style="padding: 14px 24px; font-size: 16px; font-weight: 700; background: linear-gradient(135deg, #1e3a8a, #2563eb); border: none; border-radius: 10px; color: #ffffff; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                Tuma Ujumbe Huu kwa Washiriki Sasa 🚀
+            </button>
+        </form>
+    </div>
+
+    <script>
+    function toggleRecipientSelect(val) {
+        const singleContainer = document.getElementById('single_member_container');
+        if (val === 'SINGLE') {
+            singleContainer.style.display = 'block';
+        } else {
+            singleContainer.style.display = 'none';
+        }
+    }
+
+    function setTemplate(type) {
+        const textarea = document.getElementById('custom_message');
+        if (type === 'sabato') {
+            textarea.value = "Habari {jina},\n\nTunakutakia Sabato Njema na yenye utulivu na amani ya Kristo. Ubarikiwe sana pamoja na familia yako yote!";
+        } else if (type === 'juma') {
+            textarea.value = "Habari {jina},\n\nTunakutakia mwanzo mwema wa juma na mafanikio tele katika kazi na shughuli zako za wiki hii. Mungu awe kiongozi wako!";
+        } else if (type === 'maombi') {
+            textarea.value = "Habari {jina},\n\nTunakukumbusha kuwa na muda wa maombi na usomaji wa Neno la Mungu leo. Mungu azidi kukulinda na kukubariki!";
+        }
+    }
+    </script>
+
     <!-- Test SMS Dispatch Card -->
     <div class="card" style="border-left: 4px solid var(--secondary);">
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">

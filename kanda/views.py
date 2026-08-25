@@ -9,7 +9,8 @@ from .sms_helper import (
     send_test_sms,
     check_nextsms_balance,
     is_mock_mode,
-    get_active_config
+    get_active_config,
+    send_custom_broadcast_sms
 )
 from functools import wraps
 
@@ -308,6 +309,27 @@ def sms_settings(request):
     if request.method == 'POST':
         action = request.POST.get('action', 'save')
 
+        if action == 'send_custom_broadcast':
+            custom_msg = request.POST.get('custom_message', '').strip()
+            recipient_type = request.POST.get('recipient_type', 'ALL')
+            specific_member_id = request.POST.get('specific_member_id') or None
+
+            if not custom_msg:
+                messages.error(request, "Tafadhali andika ujumbe unaotaka kuutuma.")
+            else:
+                s_count, f_count, is_mock = send_custom_broadcast_sms(
+                    custom_msg, 
+                    recipient_type=recipient_type, 
+                    specific_member_id=specific_member_id
+                )
+                if s_count > 0:
+                    messages.success(request, f"Ujumbe maalum umetumwa kwa mafanikio kwa washiriki {s_count}!")
+                elif f_count > 0:
+                    messages.error(request, f"Kushindwa kutuma kwa washiriki {f_count}. Tafadhali kagua salio lako la SMS.")
+                else:
+                    messages.warning(request, "Hakuna washiriki waliochaguliwa au waliopo hewani.")
+            return redirect('sms_settings')
+
         if action == 'save':
             sender_id_val = request.POST.get('sender_id', 'NEXTSMS').strip() or 'NEXTSMS'
             if config:
@@ -380,6 +402,7 @@ def sms_settings(request):
         'mock_active': mock_active,
         'test_result': test_result,
         'balance_info': balance_info,
+        'washiriki': Mshiriki.objects.filter(is_active=True).order_by('jina'),
     }
     return render(request, 'sms_settings.html', context)
 
