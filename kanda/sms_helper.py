@@ -103,14 +103,13 @@ def get_auth_headers_list(api_key, secret_key):
 
 
 def is_mock_mode(config):
-    """Kuangalia kama mfumo uko kwenye Mock Mode (Majaribio)."""
+    """Kuangalia kama mfumo uko kwenye Mock Mode."""
+    # Kama kuna keys za NextSMS, siyo mock kamwe!
     if not config:
-        return True
+        return False
     key = (config.api_key or "").strip()
     secret = (config.secret_key or "").strip()
-    if not key and not secret:
-        return True
-    if key in ["MOCK_KEY", ""] and secret in ["MOCK_SECRET", ""]:
+    if (not key or key == "MOCK_KEY") and not DEFAULT_NEXT_SMS_API_KEY:
         return True
     return False
 
@@ -154,7 +153,7 @@ def send_single_sms(dest_phone, message, config=None, mshiriki=None, ibada=None,
         return True
 
     sender_id = (getattr(config, 'sender_id', '') or 'IBADA SIFA').strip()
-    auth_headers = get_auth_headers_list(config.api_key, config.secret_key)
+    auth_headers = get_auth_headers_list(api_k, secret_k)
     if not auth_headers:
         err = "Taarifa za uthibitisho (Credentials) za Next SMS hazipo."
         _log_sms(mshiriki, ibada, sms_type, phone_clean, message, 'FAILED', err)
@@ -276,7 +275,7 @@ def send_test_sms(dest_phone, test_message, config=None):
         }
 
     sender_id = (getattr(config, 'sender_id', '') or 'IBADA SIFA').strip()
-    auth_headers = get_auth_headers_list(config.api_key, config.secret_key)
+    auth_headers = get_auth_headers_list(api_k, secret_k)
     if not auth_headers:
         return {
             "success": False,
@@ -401,15 +400,18 @@ def check_nextsms_balance(config=None):
     if config is None:
         config = get_active_config()
 
-    if is_mock_mode(config):
+    api_k = (getattr(config, 'api_key', None) or DEFAULT_NEXT_SMS_API_KEY or '').strip()
+    secret_k = (getattr(config, 'secret_key', None) or DEFAULT_NEXT_SMS_SECRET or '').strip()
+
+    if is_mock_mode(config) and not api_k:
         return {
             "success": True,
             "is_mock": True,
             "balance": "Majaribio (Mock Mode)",
-            "message": "Mfumo uko kwenye Hali ya Majaribio (Mock Mode). Hakuna akaunti ya Next SMS iliyounganishwa."
+            "message": "Mfumo uko kwenye Hali ya Majaribio."
         }
 
-    auth_headers = get_auth_headers_list(config.api_key, config.secret_key)
+    auth_headers = get_auth_headers_list(api_k, secret_k)
     if not auth_headers:
         return {
             "success": False,
