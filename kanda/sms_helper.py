@@ -119,7 +119,7 @@ def send_single_sms(dest_phone, message, config=None, mshiriki=None, ibada=None,
     Hutuma SMS moja kwa kutumia Next SMS API (au Mock Mode kama credentials ni za majaribio).
     Inaweka moja kwa moja header ya: MANZESE SDA, SINZA NA KIJITONYAMA
     """
-    HEADER_PREFIX = "MANZESE SDA, SINZA NA KIJITONYAMA:\n"
+    HEADER_PREFIX = "MANZESE SDA, SINZA NA KIJITONYAMA\n\n"
     if message and not message.strip().startswith("MANZESE SDA"):
         message = f"{HEADER_PREFIX}{message.strip()}"
     """
@@ -245,7 +245,7 @@ def send_test_sms(dest_phone, test_message, config=None):
     Hutuma SMS ya majaribio kwa kutumia Next SMS API ili kuthibitisha muunganisho.
     Inaweka moja kwa moja header ya: MANZESE SDA, SINZA NA KIJITONYAMA
     """
-    HEADER_PREFIX = "MANZESE SDA, SINZA NA KIJITONYAMA:\n"
+    HEADER_PREFIX = "MANZESE SDA, SINZA NA KIJITONYAMA\n\n"
     if test_message and not test_message.strip().startswith("MANZESE SDA"):
         test_message = f"{HEADER_PREFIX}{test_message.strip()}"
     """
@@ -598,9 +598,10 @@ def send_attendance_sms(ibada, present_members, absent_members, send_to_present=
     # 1. Send SMS to present members (Thank You SMS)
     if send_to_present:
         for member in present_members:
-            message = config.sms_present_template.format(
-                jina=member.jina,
-                mwenyeji=ibada.mwenyeji
+            message = (
+                f"MANZESE SDA, SINZA NA KIJITONYAMA\n\n"
+                f"Habari {member.jina.strip()}, asante sana kwa kushiriki ibada ya kanda leo kwa familia ya {ibada.mwenyeji.strip()}.\n\n"
+                f"Uwepo wako ulikuwa baraka kubwa kwetu sote. Mungu akubariki na kukuinua katika juma hili!"
             )
             is_sent = send_single_sms(member.simu, message, config, mshiriki=member, ibada=ibada, sms_type='THANK_YOU')
             if is_sent:
@@ -611,9 +612,10 @@ def send_attendance_sms(ibada, present_members, absent_members, send_to_present=
     # 2. Send SMS to absent members (Encouragement SMS)
     if send_to_absent:
         for member in absent_members:
-            message = config.sms_absent_template.format(
-                jina=member.jina,
-                mwenyeji=ibada.mwenyeji
+            message = (
+                f"MANZESE SDA, SINZA NA KIJITONYAMA\n\n"
+                f"Habari {member.jina.strip()}, tulikumiss sana kwenye ibada ya kanda leo kwa familia ya {ibada.mwenyeji.strip()}.\n\n"
+                f"Tunakuombea heri na baraka za Mungu katika kila jambo lako. Karibu sana tujumuike pamoja katika ibada inayofuata!"
             )
             is_sent = send_single_sms(member.simu, message, config, mshiriki=member, ibada=ibada, sms_type='ENCOURAGEMENT')
             if is_sent:
