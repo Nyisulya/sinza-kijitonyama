@@ -493,11 +493,21 @@ def get_active_config():
 
 
 def format_ibada_time(ibada):
-    """Panga tarehe na muda wa ibada katika muundo wa SMS."""
+    """Panga tarehe na muda wa ibada katika muundo sahihi na fasaha wa Kiswahili."""
     local_time = timezone.localtime(ibada.tarehe_muda)
-    formatted_time = local_time.strftime("%I:%M %p")
+    days_sw = {
+        0: 'Jumatatu',
+        1: 'Jumanne',
+        2: 'Jumatano',
+        3: 'Alhamisi',
+        4: 'Ijumaa',
+        5: 'Jumamosi (Sabato)',
+        6: 'Jumapili'
+    }
+    siku = days_sw.get(local_time.weekday(), local_time.strftime('%A'))
     formatted_date = local_time.strftime("%d/%m/%Y")
-    return f"{formatted_date} saa {formatted_time}"
+    formatted_time = local_time.strftime("%I:%M %p")
+    return f"{siku}, tarehe {formatted_date} saa {formatted_time}"
 
 
 def send_bulk_ibada_sms(ibada):
@@ -517,14 +527,23 @@ def send_bulk_ibada_sms(ibada):
 
     time_str = format_ibada_time(ibada)
 
+    location_info = ""
+    if ibada.ramani_link:
+        location_info = f"Ramani: {ibada.ramani_link}"
+    elif ibada.maelekezo:
+        location_info = f"Maelekezo: {ibada.maelekezo}"
+
     for member in active_members:
-        # Personalize template for each member
-        message = config.sms_template.format(
-            jina=member.jina,
-            mwenyeji=ibada.mwenyeji,
+        # Safisha template isirudie neno 'saa' kabla ya tarehe
+        tpl = config.sms_template or "MANZESE SDA, SINZA NA KIJITONYAMA:\nHabari {jina}, ibada yetu ya kanda itafanyika kwa familia ya {mwenyeji} {muda}. Karibu sana! {ramani_link}"
+        tpl = tpl.replace("saa {muda}", "{muda}")
+        
+        message = tpl.format(
+            jina=member.jina.strip(),
+            mwenyeji=ibada.mwenyeji.strip(),
             muda=time_str,
-            ramani_link=ibada.ramani_link or "maelekezo: " + (ibada.maelekezo or "ibada ya kanda")
-        )
+            ramani_link=location_info
+        ).strip()
 
         is_sent = send_single_sms(member.simu, message, config, mshiriki=member, ibada=ibada, sms_type='INVITATION')
         if is_sent:
