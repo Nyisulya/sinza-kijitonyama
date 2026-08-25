@@ -6,7 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Kanda Connect{% endblock %} - Manzese SDA (Sinza & Kijitonyama)</title>
     <!-- Favicon placeholder or styling -->
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=2.0">
     {% block extra_head %}{% endblock %}
 </head>
 <body>
@@ -31,6 +34,9 @@
                 <li><a href="{% url 'home' %}" class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">Nyumbani</a></li>
                 <li><a href="{% url 'schedule' %}" class="nav-link {% if request.resolver_match.url_name == 'schedule' %}active{% endif %}">Ratiba ya Ibada</a></li>
                 <li><a href="{% url 'leader_dashboard' %}" class="nav-link nav-btn {% if request.resolver_match.url_name == 'leader_dashboard' %}active{% endif %}">Kiongozi Panel</a></li>
+                {% if request.session.is_leader %}
+                    <li><a href="{% url 'leader_logout' %}" class="nav-link" style="color: #ef4444; font-weight: 700;">Toka (Logout)</a></li>
+                {% endif %}
             </ul>
         </div>
     </nav>

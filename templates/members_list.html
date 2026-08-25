@@ -3,16 +3,77 @@
 {% block title %}Washiriki wa Kanda{% endblock %}
 
 {% block content %}
-<div style="margin-bottom: 30px;">
-    <h1 style="font-size: 28px; font-weight: 800; color: var(--primary); margin-bottom: 5px;">Washiriki wa Kanda</h1>
-    <p style="color: var(--text-muted); font-size: 15px;">Orodha ya washiriki wote waliosajiliwa katika Kanda ya Sinza na Kijitonyama.</p>
+<div style="margin-bottom: 25px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 15px;">
+    <div>
+        <h1 style="font-size: 28px; font-weight: 800; color: var(--primary); margin-bottom: 5px;">Washiriki wa Kanda</h1>
+        <p style="color: var(--text-muted); font-size: 15px;">Orodha ya washiriki wote waliosajiliwa katika Kanda ya Sinza na Kijitonyama.</p>
+    </div>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <a href="{% url 'leader_dashboard' %}" class="btn-secondary" style="color: var(--text-main); border-color: var(--border);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            Rudi Dashibodi
+        </a>
+        <button type="button" class="btn-primary" id="openAddMemberBtn" onclick="toggleAddMemberForm()" style="display: inline-flex; align-items: center; gap: 8px; font-weight: 700;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+            + Ongeza Mshiriki Mpya
+        </button>
+    </div>
 </div>
 
-<div class="dashboard-actions" style="margin-bottom: 20px;">
-    <a href="{% url 'leader_dashboard' %}" class="btn-secondary" style="color: var(--text-main); border-color: var(--border);">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-        Rudi kwenye Dashibodi
-    </a>
+<!-- Add Member Form Card (Collapsible) -->
+<div class="card" id="addMemberCard" style="display: none; margin-bottom: 25px; border-left: 4px solid var(--secondary); background: #ffffff; box-shadow: var(--shadow-lg);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="font-size: 20px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 10px;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+            Sajili Mshiriki Mpya wa Kanda
+        </h2>
+        <button type="button" onclick="toggleAddMemberForm()" style="background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-muted);">&times;</button>
+    </div>
+    
+    <form action="{% url 'register_member' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="members_list">
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; margin-bottom: 15px;">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="reg_jina" class="form-label">Jina Kamili *</label>
+                <input type="text" name="jina" id="reg_jina" class="form-control" placeholder="Mfano: John Mwita" required>
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="reg_simu" class="form-label">Namba ya Simu *</label>
+                <input type="text" name="simu" id="reg_simu" class="form-control" placeholder="Mfano: 0712345678" required>
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="reg_familia" class="form-label">Jina la Familia (Hiari)</label>
+                <input type="text" name="familia" id="reg_familia" class="form-control" placeholder="Mfano: Familia ya Mzee Mwita">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="reg_jukumu" class="form-label">Jukumu la Mshiriki</label>
+                <select name="jukumu" id="reg_jukumu" class="form-control" onchange="toggleCheoField(this.value)">
+                    <option value="MSHIRIKI" selected>Mshiriki wa Kawaida</option>
+                    <option value="KIONGOZI">Kiongozi wa Kanda</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="cheoGroup" style="margin-bottom: 0;">
+                <label for="reg_cheo" class="form-label">Cheo / Wadhifa (Hiari)</label>
+                <input type="text" name="cheo" id="reg_cheo" class="form-control" placeholder="Mfano: Mwenyekiti, Mzee wa Kanda, Katibu">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="reg_picha" class="form-label">Picha ya Kiongozi (Hiari)</label>
+                <input type="file" name="picha" id="reg_picha" class="form-control" accept="image/*" style="padding: 9px;">
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;">
+            <button type="button" onclick="toggleAddMemberForm()" class="btn-secondary">Ghairi</button>
+            <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, var(--primary), var(--primary-light));">Hifadhi Mshiriki</button>
+        </div>
+    </form>
 </div>
 
 <!-- Stats -->
@@ -52,39 +113,39 @@
         <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
             <thead>
                 <tr style="border-bottom: 2px solid var(--border); text-align: left;">
-                    <th style="padding: 10px 12px;">#</th>
-                    <th style="padding: 10px 12px;">Jina</th>
-                    <th style="padding: 10px 12px;">Namba ya Simu</th>
-                    <th style="padding: 10px 12px;">Familia</th>
-                    <th style="padding: 10px 12px;">Jukumu</th>
-                    <th style="padding: 10px 12px;">Hali</th>
-                    <th style="padding: 10px 12px;">Tarehe ya Kujiunga</th>
-                    <th style="padding: 10px 12px;">Kitendo</th>
+                    <th style="padding: 12px;">#</th>
+                    <th style="padding: 12px;">Jina</th>
+                    <th style="padding: 12px;">Namba ya Simu</th>
+                    <th style="padding: 12px;">Familia</th>
+                    <th style="padding: 12px;">Jukumu</th>
+                    <th style="padding: 12px;">Hali</th>
+                    <th style="padding: 12px;">Tarehe ya Kujiunga</th>
+                    <th style="padding: 12px;">Kitendo</th>
                 </tr>
             </thead>
             <tbody>
                 {% for mshiriki in washiriki %}
                 <tr style="border-bottom: 1px solid var(--border);">
-                    <td style="padding: 10px 12px; color: var(--text-muted);">{{ forloop.counter }}</td>
-                    <td style="padding: 10px 12px; font-weight: 600;">{{ mshiriki.jina }}</td>
-                    <td style="padding: 10px 12px; white-space: nowrap;">{{ mshiriki.simu }}</td>
-                    <td style="padding: 10px 12px;">{{ mshiriki.familia|default:"-" }}</td>
-                    <td style="padding: 10px 12px;">
+                    <td style="padding: 12px; color: var(--text-muted);">{{ forloop.counter }}</td>
+                    <td style="padding: 12px; font-weight: 700; color: var(--text-main);">{{ mshiriki.jina }}</td>
+                    <td style="padding: 12px; white-space: nowrap; font-weight: 600; color: var(--primary);">{{ mshiriki.simu }}</td>
+                    <td style="padding: 12px;">{{ mshiriki.familia|default:"-" }}</td>
+                    <td style="padding: 12px;">
                         {% if mshiriki.jukumu == 'KIONGOZI' %}
-                            <span style="background: #eff6ff; color: #1d4ed8; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;">Kiongozi</span>
+                            <span style="background: #eff6ff; color: #1d4ed8; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">Kiongozi</span>
                         {% else %}
-                            <span style="background: #f3f4f6; color: #374151; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;">Mshiriki</span>
+                            <span style="background: #f3f4f6; color: #374151; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">Mshiriki</span>
                         {% endif %}
                     </td>
-                    <td style="padding: 10px 12px;">
+                    <td style="padding: 12px;">
                         {% if mshiriki.is_active %}
-                            <span style="background: #dcfce7; color: #16a34a; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;">Active</span>
+                            <span style="background: #dcfce7; color: #16a34a; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">Active</span>
                         {% else %}
-                            <span style="background: #fee2e2; color: #dc2626; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;">Inactive</span>
+                            <span style="background: #fee2e2; color: #dc2626; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">Inactive</span>
                         {% endif %}
                     </td>
-                    <td style="padding: 10px 12px; white-space: nowrap; color: var(--text-muted); font-size: 13px;">{{ mshiriki.created_at|date:"d/m/Y" }}</td>
-                    <td style="padding: 10px 12px;">
+                    <td style="padding: 12px; white-space: nowrap; color: var(--text-muted); font-size: 13px;">{{ mshiriki.created_at|date:"d/m/Y" }}</td>
+                    <td style="padding: 12px;">
                         <form action="{% url 'toggle_member_active' mshiriki.id %}" method="post" style="margin: 0;">
                             {% csrf_token %}
                             {% if mshiriki.is_active %}
@@ -100,7 +161,19 @@
         </table>
     </div>
     {% else %}
-    <p style="text-align: center; color: var(--text-muted); padding: 40px 0;">Hakuna washiriki waliosajiliwa bado. Wajisajili kwenye ukurasa wa Nyumbani.</p>
+    <p style="text-align: center; color: var(--text-muted); padding: 40px 0;">Hakuna washiriki waliosajiliwa bado. Bonyeza kitufe cha juu cha <strong>+ Ongeza Mshiriki Mpya</strong> kusajili mshiriki wa kwanza.</p>
     {% endif %}
 </div>
+
+<script>
+function toggleAddMemberForm() {
+    var card = document.getElementById('addMemberCard');
+    if (card.style.display === 'none' || card.style.display === '') {
+        card.style.display = 'block';
+        document.getElementById('reg_jina').focus();
+    } else {
+        card.style.display = 'none';
+    }
+}
+</script>
 {% endblock %}

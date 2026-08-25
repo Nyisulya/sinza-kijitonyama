@@ -13,6 +13,7 @@ urlpatterns = [
     path('dashboard/attendance/<int:ibada_id>/', views.take_attendance, name='take_attendance'),
     path('dashboard/attendance/<int:ibada_id>/save/', views.save_attendance, name='save_attendance'),
     path('dashboard/login/', views.leader_login, name='leader_login'),
+    path('dashboard/logout/', views.leader_logout, name='leader_logout'),
     path('dashboard/attendance/history/', views.attendance_history, name='attendance_history'),
     path('dashboard/sms-settings/', views.sms_settings, name='sms_settings'),
     path('dashboard/sms-logs/', views.sms_logs, name='sms_logs'),

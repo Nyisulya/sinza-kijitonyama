@@ -1,156 +1,277 @@
 {% extends 'base.html' %}
 
-{% block title %}Nyumbani{% endblock %}
+{% block title %}Kanda ya Sinza na Kijitonyama - Manzese SDA Church{% endblock %}
 
 {% block content %}
+<div class="homepage-container" style="max-width: 1050px; margin: 0 auto;">
 
-<!-- Welcome Banner -->
-<div class="welcome-banner">
-    <div class="welcome-icon">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path></svg>
-    </div>
-    <div class="welcome-text">
-        <h1 class="welcome-title">Karibu katika Kanda ya Sinza na Kijitonyama</h1>
-        <p class="welcome-subtitle">Manzese SDA Church - Tunakukaribisha kwa furaha na upendo wa Kristo</p>
-    </div>
-</div>
+    <!-- 1. HERO SECTION -->
+    <section class="hero-section" style="text-align: center; padding: 45px 25px 40px; margin-bottom: 35px; background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #0d9488 100%); border-radius: var(--radius-lg); color: #ffffff; position: relative; overflow: hidden; box-shadow: var(--shadow-xl);">
+        <!-- Ambient Glow Background Element -->
+        <div style="position: absolute; top: -50%; left: 50%; transform: translateX(-50%); width: 400px; height: 400px; background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, rgba(0,0,0,0) 70%); border-radius: 50%; pointer-events: none;"></div>
 
-<div class="home-grid">
-    
-    <!-- Left Column: Upcoming Ibada & RSVP -->
-    <div>
-        {% if upcoming_ibada %}
-            <div class="card hero-card">
-                <span class="hero-tag">Ibada ya Kanda Ijayo</span>
-                <h1 class="hero-host">Familia ya {{ upcoming_ibada.mwenyeji }}</h1>
-                
-                <div class="hero-meta">
-                    <div class="meta-item">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                        <span>{{ upcoming_ibada.tarehe_muda|date:"l, d F Y - H:i" }} (Jumapili)</span>
+        <div style="position: relative; z-index: 2;">
+            <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.25); padding: 6px 18px; border-radius: 30px; font-size: 13px; font-weight: 700; letter-spacing: 0.5px; color: #facc15; margin-bottom: 20px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+                MANZESE SDA CHURCH &bull; KANDA YA SINZA NA KIJITONYAMA
+            </div>
+
+            <h1 style="font-size: clamp(28px, 4vw, 42px); font-weight: 800; line-height: 1.25; margin-bottom: 18px; color: #ffffff; text-shadow: 0 2px 10px rgba(0,0,0,0.3);">
+                Ushirika wa Upendo, Maombi na Kujengana Kiroho
+            </h1>
+
+            <p style="font-size: clamp(15px, 1.8vw, 17px); line-height: 1.7; color: rgba(255, 255, 255, 0.9); max-width: 780px; margin: 0 auto 30px; font-weight: 400;">
+                Karibu kwenye tovuti rasmi ya Kanda ya Sinza na Kijitonyama. Tunajumuika pamoja katika ibada za nyumba kwa nyumba, kuomba, kujifunza Neno la Mungu na kusaidiana kama familia ya Kristo.
+            </p>
+
+            <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                {% if upcoming_ibada %}
+                    <a href="#ibada-rasmi" class="btn-primary" style="background: #facc15; color: #0f172a; font-weight: 800; padding: 14px 28px; border-radius: 30px; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(250, 204, 21, 0.4);">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+                        Tazama Ibada ya Wiki Hii
+                    </a>
+                {% endif %}
+                <a href="#viongozi-section" class="btn-secondary" style="background: rgba(255, 255, 255, 0.15); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.35); font-weight: 700; padding: 14px 26px; border-radius: 30px; display: inline-flex; align-items: center; gap: 8px; backdrop-filter: blur(8px);">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    Viongozi wa Kanda
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. UPCOMING IBADA SHOWCASE -->
+    {% if upcoming_ibada %}
+    <section id="ibada-rasmi" style="margin-bottom: 45px; scroll-margin-top: 90px;">
+        <div class="card" style="border: 2px solid rgba(59, 130, 246, 0.25); border-left: 8px solid var(--primary); padding: 35px 30px; box-shadow: var(--shadow-xl); background: #ffffff; border-radius: var(--radius-lg);">
+            
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
+                <div>
+                    <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(30, 58, 138, 0.1); color: var(--primary); font-weight: 800; font-size: 12px; padding: 6px 14px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">
+                        <span style="width: 8px; height: 8px; background: #22c55e; border-radius: 50%; display: inline-block;"></span>
+                        IBADA INAYOFUATA YA KANDA
                     </div>
-                    {% if upcoming_ibada.maelekezo %}
-                        <div class="meta-item">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                            <span>{{ upcoming_ibada.maelekezo }}</span>
-                        </div>
-                    {% endif %}
-                    {% if upcoming_ibada.masomo %}
-                        <div class="meta-item">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5v-15z"></path></svg>
-                            <span>Mada: <strong>{{ upcoming_ibada.masomo }}</strong></span>
-                        </div>
-                    {% endif %}
+                    <h2 style="font-size: clamp(24px, 3vw, 32px); font-weight: 800; color: var(--primary); margin: 0; line-height: 1.2;">
+                        Familia ya {{ upcoming_ibada.mwenyeji }}
+                    </h2>
                 </div>
 
-                <div class="hero-actions">
-                    {% if upcoming_ibada.ramani_link %}
-                        <a href="{{ upcoming_ibada.ramani_link }}" target="_blank" class="btn-primary">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon><line x1="9" y1="3" x2="9" y2="18"></line><line x1="15" y1="6" x2="15" y2="21"></line></svg>
-                            Fungua Ramani ya Google
-                        </a>
-                    {% endif %}
-                    <a href="#rsvp-section" class="btn-secondary">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
-                        Thibitisha Mahudhurio Hapa
+                <div style="background: linear-gradient(135deg, #f8fafc, #f1f5f9); padding: 14px 22px; border-radius: var(--radius-md); border: 1px solid var(--border); text-align: right;">
+                    <div style="font-size: 17px; font-weight: 800; color: var(--secondary); display: flex; align-items: center; gap: 8px; justify-content: flex-end;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                        {{ upcoming_ibada.tarehe_muda|date:"l, d F Y" }}
+                    </div>
+                    <div style="font-size: 15px; color: var(--text-muted); font-weight: 700; margin-top: 4px; display: flex; align-items: center; gap: 6px; justify-content: flex-end;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        Saa {{ upcoming_ibada.tarehe_muda|date:"h:i A" }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Somo / Mada -->
+            {% if upcoming_ibada.somo %}
+                <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-left: 5px solid #16a34a; padding: 18px 20px; border-radius: var(--radius-md); margin-bottom: 22px;">
+                    <div style="font-size: 12px; font-weight: 800; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; display: flex; align-items: center; gap: 6px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                        Somo / Mada ya Kujadili
+                    </div>
+                    <div style="font-size: 18px; font-weight: 700; color: #14532d;">{{ upcoming_ibada.somo }}</div>
+                </div>
+            {% endif %}
+
+            <!-- Maelekezo ya Mahali -->
+            {% if upcoming_ibada.maelekezo %}
+                <div style="background: #f8fafc; border: 1px solid var(--border); padding: 18px 20px; border-radius: var(--radius-md); margin-bottom: 25px;">
+                    <div style="font-size: 13px; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                        Maelekezo ya Kufika Nyumbani
+                    </div>
+                    <p style="color: var(--text-main); font-size: 15px; line-height: 1.6; margin: 0; font-weight: 500;">
+                        {{ upcoming_ibada.maelekezo }}
+                    </p>
+                </div>
+            {% endif %}
+
+            <!-- Action Buttons -->
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                {% if upcoming_ibada.ramani_link %}
+                    <a href="{{ upcoming_ibada.ramani_link }}" target="_blank" class="btn-primary" style="flex: 2; min-width: 240px; text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 15px 22px; font-size: 16px; font-weight: 800; background: linear-gradient(135deg, var(--primary), var(--primary-light));">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+                        Fungua Ramani ya Google (Location)
+                    </a>
+                {% endif %}
+
+                <a href="https://api.whatsapp.com/send?text=Habari!+Ibada+ya+Kanda+ya+Sinza+%26+Kijitonyama+itafanyika+kwa+familia+ya+{{ upcoming_ibada.mwenyeji|urlencode }}+saa+{{ upcoming_ibada.tarehe_muda|date:'h:i+A'|urlencode }}.+Karibu+sana!+Maelekezo:+{{ upcoming_ibada.maelekezo|urlencode }}+{% if upcoming_ibada.ramani_link %}+Ramani:+{{ upcoming_ibada.ramani_link|urlencode }}{% endif %}" target="_blank" class="btn-secondary" style="flex: 1; min-width: 200px; text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 15px 20px; font-size: 15px; font-weight: 700; color: #15803d; border-color: #86efac; background: #f0fdf4;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                    Shiriki WhatsApp
+                </a>
+            </div>
+
+        </div>
+    </section>
+    {% else %}
+    <section style="margin-bottom: 40px;">
+        <div class="card" style="text-align: center; padding: 45px 25px; background: linear-gradient(135deg, #1e293b, #0f172a); color: #ffffff; border-radius: var(--radius-lg);">
+            <div style="background: rgba(255, 255, 255, 0.1); width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 18px;">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            </div>
+            <h3 style="font-size: 22px; font-weight: 800; margin-bottom: 8px;">Hakuna Ibada Iliyoratibiwa kwa Sasa</h3>
+            <p style="color: rgba(255, 255, 255, 0.8); font-size: 15px; max-width: 550px; margin: 0 auto 20px;">Viongozi watapanga na kutangaza ratiba ya ibada inayofuata hivi karibuni.</p>
+            <a href="{% url 'schedule' %}" class="btn-secondary" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.15); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.3);">
+                Tazama Ibada Zilizopita
+            </a>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- 3. UONGOZI WA KANDA YA SINZA NA KIJITONYAMA (LEADERS SECTION) -->
+    <section id="viongozi-section" style="margin-bottom: 45px; scroll-margin-top: 90px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <span style="font-size: 12px; font-weight: 800; color: var(--secondary); text-transform: uppercase; letter-spacing: 1px;">Viongozi Wetu</span>
+            <h2 style="font-size: 26px; font-weight: 800; color: var(--primary); margin-top: 5px;">Uongozi wa Kanda ya Sinza na Kijitonyama</h2>
+            <p style="color: var(--text-muted); font-size: 15px; max-width: 600px; margin: 0 auto;">Watumishi waliopewa dhamana ya kuratibu huduma, maombi na malezi ya kiroho katika kanda yetu.</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+            {% for kiongozi in viongozi %}
+            <div class="card" style="border-top: 4px solid var(--primary); padding: 25px; text-align: center; box-shadow: var(--shadow-md); background: #ffffff; border-radius: var(--radius-md);">
+                {% if kiongozi.picha %}
+                    <div style="margin: 0 auto 15px; width: 85px; height: 85px;">
+                        <img src="{{ kiongozi.picha.url }}" alt="{{ kiongozi.jina }}" style="width: 85px; height: 85px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary-light); box-shadow: 0 4px 12px rgba(30, 58, 138, 0.2);">
+                    </div>
+                {% else %}
+                    <div style="width: 75px; height: 75px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: #ffffff; font-size: 28px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; box-shadow: 0 4px 10px rgba(30, 58, 138, 0.25);">
+                        {{ kiongozi.jina|slice:":1"|upper }}
+                    </div>
+                {% endif %}
+                
+                <span style="background: #eff6ff; color: #1d4ed8; font-size: 12px; font-weight: 700; padding: 4px 14px; border-radius: 20px; display: inline-block; margin-bottom: 8px;">
+                    {{ kiongozi.cheo|default:"Kiongozi wa Kanda" }}
+                </span>
+
+                <h3 style="font-size: 20px; font-weight: 800; color: var(--text-main); margin-bottom: 4px;">{{ kiongozi.jina }}</h3>
+                
+                {% if kiongozi.familia %}
+                    <div style="font-size: 14px; color: var(--text-muted); margin-bottom: 15px;">{{ kiongozi.familia }}</div>
+                {% else %}
+                    <div style="font-size: 14px; color: var(--text-muted); margin-bottom: 15px;">Sinza &amp; Kijitonyama Zone</div>
+                {% endif %}
+
+                <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
+                    <a href="tel:{{ kiongozi.simu }}" class="btn-primary" style="flex: 1; padding: 10px 14px; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: var(--primary);">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                        Piga Simu
+                    </a>
+                    <a href="https://wa.me/{{ kiongozi.simu }}" target="_blank" class="btn-secondary" style="flex: 1; padding: 10px 14px; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 6px; color: #15803d; border-color: #86efac; background: #f0fdf4;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                        WhatsApp
                     </a>
                 </div>
             </div>
-
-            <!-- RSVP Submission Card -->
-            <div class="card" id="rsvp-section">
-                <h2 class="card-title">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
-                    Uthibitisho wa Mahudhurio
-                </h2>
-                <form action="{% url 'submit_rsvp' upcoming_ibada.id %}" method="post">
-                    {% csrf_token %}
-                    
-                    <div class="form-group">
-                        <label for="mshiriki_id" class="form-label">Chagua Jina Lako</label>
-                        <select name="mshiriki_id" id="mshiriki_id" class="form-control" required>
-                            <option value="" disabled selected>-- Chagua Jina lako kwenye orodha --</option>
-                            {% for mshiriki in washiriki %}
-                                <option value="{{ mshiriki.id }}">{{ mshiriki.jina }} ({% if mshiriki.familia %}{{ mshiriki.familia }}{% else %}Hana Familia{% endif %})</option>
-                            {% empty %}
-                                <option value="" disabled>Hakuna washiriki waliosajiliwa bado. Tafadhali jisajili kulia.</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Hali ya Mahudhurio yako Jumapili hii</label>
-                        <div class="rsvp-options">
-                            <div class="rsvp-option">
-                                <input type="radio" name="status" id="rsvp_yes" value="NITAKUJA" required>
-                                <label for="rsvp_yes" class="rsvp-btn-label nitakuja">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                                    Nitakuja
-                                </label>
-                            </div>
-                            <div class="rsvp-option">
-                                <input type="radio" name="status" id="rsvp_no" value="SITAFANIKIWA">
-                                <label for="rsvp_no" class="rsvp-btn-label sitafanikiwa">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
-                                    Sitafanikiwa
-                                </label>
-                            </div>
-                            <div class="rsvp-option">
-                                <input type="radio" name="status" id="rsvp_transport" value="NAHITAJI_USAFIRI">
-                                <label for="rsvp_transport" class="rsvp-btn-label usafiri">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
-                                    Nahitaji Usafiri
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="maoni" class="form-label">Maoni ya Ziada (Ukitaka)</label>
-                        <textarea name="maoni" id="maoni" rows="3" class="form-control" placeholder="Mfano: Nitachelewa kidogo, au nitakuja na wageni..."></textarea>
-                    </div>
-
-                    <button type="submit" class="btn-primary btn-block">Tuma Uthibitisho</button>
-                </form>
+            {% empty %}
+            <div class="card" style="grid-column: 1 / -1; text-align: center; padding: 30px; color: var(--text-muted);">
+                Viongozi watasajiliwa na kuonekana hapa hivi karibuni.
             </div>
-        {% else %}
-            <div class="card hero-card" style="text-align: center; padding: 50px 30px;">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--secondary-light); margin-bottom: 20px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                <h1 class="hero-host">Hakuna Ibada Iliyoratibiwa</h1>
-                <p style="color: rgba(255, 255, 255, 0.8); margin-bottom: 0;">Hakuna ibada ya kanda iliyoratibiwa kwa wiki hii bado. Viongozi watasasisha ratiba hivi karibuni kupitia Admin panel au kutoa taarifa kwenye kikundi cha WhatsApp.</p>
-            </div>
-        {% endif %}
-    </div>
-
-    <!-- Right Column: Registration -->
-    <div>
-        <!-- Registration Card -->
-        <div class="card">
-            <h2 class="card-title">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
-                Jisajili Kwenye Kanda
-            </h2>
-            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Kama jina lako halipo kwenye orodha ya RSVP hapo kushoto, tafadhali jaza fomu hii fupi ili ujisajili kwenye mfumo wa kanda yetu ya Sinza na Kijitonyama.</p>
-            
-            <form action="{% url 'register_member' %}" method="post">
-                {% csrf_token %}
-                <div class="form-group">
-                    <label for="reg_jina" class="form-label">Jina Kamili</label>
-                    <input type="text" name="jina" id="reg_jina" class="form-control" placeholder="Mfano: John Mwita" required>
-                </div>
-                <div class="form-group">
-                    <label for="reg_simu" class="form-label">Namba ya Simu</label>
-                    <input type="text" name="simu" id="reg_simu" class="form-control" placeholder="Mfano: 0712345678" required>
-                    <small style="font-size: 11px; color: var(--text-muted);">Namba itakayotumika kukutumia ujumbe wa SMS wa Jumapili.</small>
-                </div>
-                <div class="form-group">
-                    <label for="reg_familia" class="form-label">Jina la Familia yako (Si lazima)</label>
-                    <input type="text" name="familia" id="reg_familia" class="form-control" placeholder="Mfano: Familia ya Mzee Mwita">
-                </div>
-                <button type="submit" class="btn-primary btn-block" style="background: linear-gradient(135deg, var(--primary), var(--primary-light));">Jisajili Sasa</button>
-            </form>
+            {% endfor %}
         </div>
-    </div>
+    </section>
+
+    <!-- 4. NGUZO 4 ZA KANDA YETU (4 SPIRITUAL PILLARS) -->
+    <section style="margin-bottom: 45px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <span style="font-size: 12px; font-weight: 800; color: var(--secondary); text-transform: uppercase; letter-spacing: 1px;">Msingi Wetu</span>
+            <h2 style="font-size: 26px; font-weight: 800; color: var(--primary); margin-top: 5px;">Nguzo Kuu za Ushirika Wetu</h2>
+            <p style="color: var(--text-muted); font-size: 15px; max-width: 600px; margin: 0 auto;">Kanda ya Sinza na Kijitonyama inasimamia mambo makuu manne ya kujenga jamii yetu kiroho na kijamii.</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 20px;">
+            <!-- Pillar 1 -->
+            <div class="card" style="border-top: 4px solid #3b82f6; transition: transform 0.2s;">
+                <div style="background: #eff6ff; color: #2563eb; width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                </div>
+                <h3 style="font-size: 18px; font-weight: 800; color: var(--text-main); margin-bottom: 8px;">Kujifunza Neno</h3>
+                <p style="font-size: 14px; color: var(--text-muted); line-height: 1.6; margin: 0;">Uchambuzi wa kina wa Biblia na Mwongozo wa Sabato kwa ajili ya kukuza imani yetu.</p>
+            </div>
+
+            <!-- Pillar 2 -->
+            <div class="card" style="border-top: 4px solid #10b981; transition: transform 0.2s;">
+                <div style="background: #ecfdf5; color: #059669; width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                </div>
+                <h3 style="font-size: 18px; font-weight: 800; color: var(--text-main); margin-bottom: 8px;">Upendo &amp; Ushirika</h3>
+                <p style="font-size: 14px; color: var(--text-muted); line-height: 1.6; margin: 0;">Kutembeleana, kufahamiana vizuri, na kusaidiana kwa moyo mmoja katika kila hali.</p>
+            </div>
+
+            <!-- Pillar 3 -->
+            <div class="card" style="border-top: 4px solid #f59e0b; transition: transform 0.2s;">
+                <div style="background: #fffbeb; color: #d97706; width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                </div>
+                <h3 style="font-size: 18px; font-weight: 800; color: var(--text-main); margin-bottom: 8px;">Maombi ya Kina</h3>
+                <p style="font-size: 14px; color: var(--text-muted); line-height: 1.6; margin: 0;">Kuombeana familia kwa familia, kuliombea kanisa letu, na mahitaji mbalimbali.</p>
+            </div>
+
+            <!-- Pillar 4 -->
+            <div class="card" style="border-top: 4px solid #8b5cf6; transition: transform 0.2s;">
+                <div style="background: #f5f3ff; color: #7c3aed; width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+                </div>
+                <h3 style="font-size: 18px; font-weight: 800; color: var(--text-main); margin-bottom: 8px;">Kufikia Jamii</h3>
+                <p style="font-size: 14px; color: var(--text-muted); line-height: 1.6; margin: 0;">Kushuhudia na kueneza nuru ya Kristo kwa majirani katika mitaa ya Sinza na Kijitonyama.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. RATIBA ZA KILA WIKI (WEEKLY WORSHIP SCHEDULE) -->
+    <section style="margin-bottom: 45px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <span style="font-size: 12px; font-weight: 800; color: var(--secondary); text-transform: uppercase; letter-spacing: 1px;">Muda wa Ibada</span>
+            <h2 style="font-size: 26px; font-weight: 800; color: var(--primary); margin-top: 5px;">Ratiba Yetu ya Kikanisa</h2>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+            <!-- Schedule 1 -->
+            <div class="card" style="background: #ffffff; border: 1px solid var(--border);">
+                <span style="background: rgba(30, 58, 138, 0.1); color: var(--primary); font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 12px; display: inline-block; margin-bottom: 12px;">KILA JUMAPILI</span>
+                <h3 style="font-size: 19px; font-weight: 800; color: var(--primary); margin-bottom: 6px;">Ibada ya Kanda (Nyumbani)</h3>
+                <div style="font-size: 14px; font-weight: 700; color: var(--secondary); margin-bottom: 8px;">Saa 11:30 Jioni - 01:00 Usiku</div>
+                <p style="font-size: 14px; color: var(--text-muted); line-height: 1.5; margin: 0;">Ibada ya nyumba kwa nyumba ya washiriki wa Sinza na Kijitonyama kulingana na mwenyeji wa wiki.</p>
+            </div>
+
+            <!-- Schedule 2 -->
+            <div class="card" style="background: #ffffff; border: 1px solid var(--border);">
+                <span style="background: rgba(22, 163, 74, 0.1); color: #16a34a; font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 12px; display: inline-block; margin-bottom: 12px;">KILA JUMAMOSI (SABATO)</span>
+                <h3 style="font-size: 19px; font-weight: 800; color: var(--primary); margin-bottom: 6px;">Ibada Kuu ya Sabato</h3>
+                <div style="font-size: 14px; font-weight: 700; color: var(--secondary); margin-bottom: 8px;">Saa 02:30 Asubuhi - 06:30 Mchana</div>
+                <p style="font-size: 14px; color: var(--text-muted); line-height: 1.5; margin: 0;">Ibada Kuu ya Sabato inafanyika katika <strong>Kanisa Kuu la Manzese SDA</strong>.</p>
+            </div>
+
+            <!-- Schedule 3 -->
+            <div class="card" style="background: #ffffff; border: 1px solid var(--border);">
+                <span style="background: rgba(245, 158, 11, 0.1); color: #d97706; font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 12px; display: inline-block; margin-bottom: 12px;">KATIKATI YA JUMA</span>
+                <h3 style="font-size: 19px; font-weight: 800; color: var(--primary); margin-bottom: 6px;">Maombi ya Jumatano &amp; Ijumaa</h3>
+                <div style="font-size: 14px; font-weight: 700; color: var(--secondary); margin-bottom: 8px;">Saa 11:30 Jioni</div>
+                <p style="font-size: 14px; color: var(--text-muted); line-height: 1.5; margin: 0;">Kipindi cha sala, maombi na mkesha wa mwisho wa mwezi.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. CALL TO ACTION / LEADERSHIP CONTACT BANNER -->
+    <section style="background: linear-gradient(135deg, #1e3a8a, #0f172a); border-radius: var(--radius-lg); padding: 35px 30px; color: #ffffff; text-align: center; margin-bottom: 30px;">
+        <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 10px;">Je, Unahitaji Maombi au Mawasiliano na Viongozi?</h2>
+        <p style="color: rgba(255, 255, 255, 0.85); font-size: 15px; max-width: 650px; margin: 0 auto 25px; line-height: 1.6;">
+            Ikiwa una ombi la maombi, unahitaji kutembelewa, au una maswali kuhusu Kanda ya Sinza na Kijitonyama, uongozi wa kanda upo tayari kukuhudumia.
+        </p>
+        <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+            <a href="{% url 'leader_dashboard' %}" class="btn-primary" style="background: #facc15; color: #0f172a; font-weight: 800; padding: 12px 24px; border-radius: 25px; display: inline-flex; align-items: center; gap: 8px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                Dashibodi ya Viongozi
+            </a>
+            <a href="{% url 'schedule' %}" class="btn-secondary" style="background: rgba(255, 255, 255, 0.15); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.3); font-weight: 700; padding: 12px 22px; border-radius: 25px;">
+                Ratiba za Ibada
+            </a>
+        </div>
+    </section>
 
 </div>
 {% endblock %}

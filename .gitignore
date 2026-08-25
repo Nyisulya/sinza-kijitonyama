@@ -6,28 +6,30 @@ __pycache__/
 .eggs/
 *.egg
 
-# Django
+# Django & Media
 *.log
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
 media/
 staticfiles/
+server.log
 
-# Virtual environments
+# Virtual environments & local vendor deps
 venv/
 env/
 .env
 .venv/
+deps/
+libs/
 
-# IDE
+# IDE & OS
 .idea/
 .vscode/
 *.swp
-
-# OS
 .DS_Store
 Thumbs.db
 
-# PDFs / generated files
-*.pdf
+# Temp Scratch & Artifacts
+scratch/
+test_*.py

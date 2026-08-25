@@ -12,6 +12,8 @@ class Mshiriki(models.Model):
     simu = models.CharField(max_length=15, verbose_name="Namba ya Simu", help_text="Mfano: 0712345678 au 255712345678")
     familia = models.CharField(max_length=150, blank=True, verbose_name="Jina la Familia", help_text="Mfano: Familia ya Mzee Kamau")
     jukumu = models.CharField(max_length=20, choices=JUKUMU_CHOICES, default='MSHIRIKI', verbose_name="Jukumu")
+    cheo = models.CharField(max_length=100, blank=True, default="Kiongozi wa Kanda", verbose_name="Cheo / Wadhifa", help_text="Mfano: Mwenyekiti wa Kanda, Mzee wa Kanda, Katibu, n.k.")
+    picha = models.FileField(upload_to='viongozi/', blank=True, null=True, verbose_name="Picha ya Kiongozi / Mshiriki")
     is_active = models.BooleanField(default=True, verbose_name="Yuko Active?")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Tarehe ya Kusajiliwa")
 
@@ -82,9 +84,9 @@ class Uthibitisho(models.Model):
 
 
 class SMSConfig(models.Model):
-    api_key = models.CharField(max_length=255, blank=True, null=True, verbose_name="API Key ya SMS (Mfano: Beem API Key)")
-    secret_key = models.CharField(max_length=255, blank=True, null=True, verbose_name="Secret Key / Password ya SMS")
-    sender_id = models.CharField(max_length=20, default="KANDA", verbose_name="Sender ID ya SMS")
+    api_key = models.CharField(max_length=255, blank=True, null=True, verbose_name="Username / API Key ya Next SMS", help_text="Username ya akaunti yako ya Next SMS au API Key")
+    secret_key = models.CharField(max_length=255, blank=True, null=True, verbose_name="Password / Secret Key ya Next SMS", help_text="Password ya akaunti ya Next SMS au API Secret")
+    sender_id = models.CharField(max_length=20, default="NEXTSMS", verbose_name="Sender ID ya SMS", help_text="Jina la mtumaji lililoidhinishwa, mfano: NEXTSMS, CHURCH, au KANISA")
     sms_template = models.TextField(
         default="Habari {jina}, ibada yetu ya Kanda ya Sinza & Kijitonyama itafanyika leo Jumapili kwa familia ya {mwenyeji} saa {muda}. Karibu sana! Ramani: {ramani_link}",
         verbose_name="Kiolezo cha Mwaliko (SMS Template)",

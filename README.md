@@ -1,163 +1,106 @@
-# ⛪ Kanda Connect — Manzese SDA (Sinza na Kijitonyama)
+# Kanda Connect - Manzese SDA (Sinza & Kijitonyama)
 
-Mfumo wa kidijitali wa kuendesha **Kanda ya Sinza na Kijitonyama** wa Kanisa la **Manzese SDA Church** (Tanzania).
+Mfumo Rasmi wa Kidijitali wa Usimamizi wa Kanda ya Sinza na Kijitonyama (Kanisa la Waadventista Wasabato Manzese).
 
-Programu hii husaidia viongozi wa kanda kusimamia washiriki, kupanga ibada, kufuatilia mahudhurio, na kuwasiliana na wanakanda kiotomatiki kupitia SMS na WhatsApp.
-
----
-
-## 🚀 Vipengele Vikuu
-
-| Kipengele | Maelezo |
-|---|---|
-| **Usajili wa Washiriki** | Kujisajili kwa jina, namba ya simu (Tanzania), na familia |
-| **Ratiba ya Ibada** | Kupanga ibada kwa familia mwenyeji, muda, ramani na somo |
-| **RSVP** | Wanakanda wanaweza kuthibitisha: `Nitakuja`, `Sitafanikiwa`, au `Nahitaji Usafiri` |
-| **Dashibodi ya Viongozi** | Takwimu, orodha za RSVP, na kufuatilia wale ambao hawajajibu |
-| **Mahudhurio (Roll Call)** | Kuweka mahudhurio ya ibada kwa kubofya tu |
-| **SMS Automatic** | Mwaliko wa SMS, SMS za shukrani, na faraja kwa wasiofika (Beem API) |
-| **Historia ya Mahudhurio** | Kumbukumbu za ibada zote zilizokamilika |
-| **Kumbukumbu za SMS (Logs)** | Rekodi ya SMS zote zilizotumwa / mockup |
-| **WhatsApp Reminder** | Kikumbusho cha moja kwa moja kwa wale hawajajaza RSVP |
+## Sifa Kuu za Mfumo:
+- **Tovuti Rasmi ya Kanda:** Taarifa za ibada za nyumba kwa nyumba, maelekezo ya Google Maps, ratiba za kila wiki, na orodha ya viongozi.
+- **Huduma ya SMS (NextSMS API V2):** Utumaji wa moja kwa moja wa mialiko ya ibada, shukrani kwa waliohudhuria, na faraja kwa wasiohudhuria kupitia Sender ID: `IBADA SIFA`.
+- **Dashibodi ya Viongozi:** Usimamizi wa washiriki, mahudhurio ya ibada (Rollcall), ripoti, na kumbukumbu za SMS. Inalindwa na nenosiri la **`2010`**.
+- **PostgreSQL Database:** Imeandaliwa kwa ajili ya seva ya uzalishaji (VPS).
 
 ---
 
-## 🛠️ Teknolojia
+## 🚀 Maelekezo ya Kupandisha Kwenye VPS (Ubuntu / Debian Deployment):
 
-- **Python** 3.10+
-- **Django** 6.0
-- **SQLite** (database ya mwanzo)
-- **Beem SMS API** (Tanzania SMS gateway)
-- Timezone: `Africa/Dar_es_Salaam`
-
----
-
-## 📦 Ufungaji (Installation)
-
+### 1. Sasisha Seva na Sakinisha Python, PostgreSQL na Nginx:
 ```bash
-# 1. Clone au fungua folda ya mradi
-cd "sinza na kijitonyama"
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y python3-pip python3-venv postgresql postgresql-contrib nginx git libpq-dev
+```
 
-# 2. Unda virtual environment
-python -m venv venv
+### 2. Sanidi Database ya PostgreSQL:
+```bash
+sudo -u postgres psql
+```
+Ndani ya PostgreSQL shell, andika:
+```sql
+CREATE DATABASE sinza;
+ALTER USER postgres WITH PASSWORD 'nyisu';
+GRANT ALL PRIVILEGES ON DATABASE sinza TO postgres;
+\q
+```
 
-# 3. Washa virtual environment
-# Windows:
-venv\Scripts\activate
-# Linux/Mac:
+### 3. Clone Repository na Sanidi Virtual Environment:
+```bash
+cd /var/www
+git clone https://github.com/Nyisulya/sinza-kijitonyama.git
+cd sinza-kijitonyama
+
+python3 -m venv venv
 source venv/bin/activate
-
-# 4. Sakinisha packages
+pip install --upgrade pip
 pip install -r requirements.txt
+```
 
-# 5. Fanya migrations za database
-python manage.py makemigrations kanda
+### 4. Endesha Migrations na Kusanya Static Files:
+```bash
+python manage.py makemigrations
 python manage.py migrate
+python manage.py collectstatic --noinput
+```
 
-# 6. Unda superuser (kwa admin panel)
+### 5. Unda Akaunti ya Msimamizi (Superuser):
+```bash
 python manage.py createsuperuser
-
-# 7. Anzisha server
-python manage.py runserver
 ```
 
-Kisha fungua: **http://127.0.0.1:8000/**
+### 6. Washa Gunicorn Systemd Service:
+Unda faili `/etc/systemd/system/kanda.service`:
+```ini
+[Unit]
+Description=Gunicorn daemon for Kanda Connect Sinza
+After=network.target
 
----
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/sinza-kijitonyama
+ExecStart=/var/www/sinza-kijitonyama/venv/bin/gunicorn --access-logfile - --workers 3 --bind unix:/var/www/sinza-kijitonyama/kanda.sock kanda_connect.wsgi:application
 
-## 🧭 Matumizi ya Mfumo
-
-### Kwa Wanakanda (Washiriki)
-1. Fungua ukurasa wa **Nyumbani** (`/`)
-2. Ukiwa hujasajiliwa — jisajili kwenye fomu ya **Jisajili Kwenye Kanda** (kulia)
-3. Chagua ibada ijayo, kisha **Thibitisha Mahudhurio (RSVP)**:
-   - ✅ **Nitakuja**
-   - ❌ **Sitafanikiwa**
-   - 🚗 **Nahitaji Usafiri**
-4. Angalia **Ratiba ya Ibada** (`/schedule/`) kwa ibada zote zilizopangwa
-
-### Kwa Viongozi
-1. Bofya **Kiongozi Panel** kwenye navigation
-2. Ingiza **Neno la Siri** (default: `1234` — badilisha kwenye admin/SMS Settings)
-3. Kwenye Dashibodi unaweza:
-   - Kuona **takwimu** (washiriki, wanaokuja, hawaji, wanahitaji usafiri)
-   - **Sajili Ibada Mpya**
-   - **Tuma SMS za Mwaliko** kwa washiriki wote
-   - **Anza Mahudhurio (Roll Call)** — weka nani alikuja / hakuja
-   - Kuona **Historia ya Mahudhurio**
-   - **Kufuatilia** washiriki walioachia kujaza RSVP (WhatsApp reminder)
-
-### SMS Gateway (Beem)
-Weka API keys kwenye **Admin Panel** → **SMS Settings** (au kwenye mazingira ya viongozi):
-- `API Key` — kutoka Beem dashboard
-- `Secret Key`
-- `Sender ID` (default: `KANDA`)
-- Templates za SMS zinaweza kubadilishwa
-
-> 💡 **Mock Mode**: Ikiwa API keys hazijawekwa (au zina `MOCK_KEY`), SMS zitaandikwa kwenye **kumbukumbu za mfumo (SMS Logs)** badala ya kutumwa kweli. Hii inakusaidia kujaribu bila gharama.
-
----
-
-## 📂 Muundo wa Mradi
-
+[Install]
+WantedBy=multi-user.target
 ```
-sinza na kijitonyama/
-├── kanda/                    # App kuu
-│   ├── management/commands/  # Custom commands (send_sunday_reminders)
-│   ├── migrations/
-│   ├── admin.py              # Admin panel
-│   ├── models.py             # Database models
-│   ├── views.py              # Logic ya kurasa
-│   ├── urls.py               # Routes
-│   └── sms_helper.py         # Beem SMS integration
-├── kanda_connect/            # Project settings
-├── templates/                # HTML templates
-├── static/                   # CSS, JS
-├── db.sqlite3                # Database
-└── manage.py
-```
-
----
-
-## ⏰ Reminder ya Kiotomatiki (Cron / Task Scheduler)
-
-Ili kutuma SMS za mwaliko **kiotomatiki asubuhi ya Jumapili**:
-
+Washa huduma:
 ```bash
-python manage.py send_sunday_reminders
+sudo systemctl daemon-reload
+sudo systemctl start kanda
+sudo systemctl enable kanda
 ```
 
-Weka hii kwenye task scheduler / cron kwa kila Jumapili asubuhi (mfano: `0 7 * * 0`).
+### 7. Sanidi Nginx Server Block:
+Unda `/etc/nginx/sites-available/kanda`:
+```nginx
+server {
+    listen 80;
+    server_name your_domain.com IP_ADDRESS;
 
----
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location /static/ {
+        root /var/www/sinza-kijitonyama;
+    }
+    location /media/ {
+        root /var/www/sinza-kijitonyama;
+    }
 
-## 🧪 Kupima (Tests)
-
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/var/www/sinza-kijitonyama/kanda.sock;
+    }
+}
+```
+Washa tovuti:
 ```bash
-python manage.py test kanda
+sudo ln -s /etc/nginx/sites-available/kanda /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl restart nginx
 ```
-
-Mfumo unajumuisha tests za:
-- Usafi wa namba za simu za Tanzania
-- RSVP submission
-- Uundaji wa ibada
-- Mahudhurio
-- Usalama wa dashibodi (passcode)
-
----
-
-## 🔒 Usalama
-
-- Dashibodi ya viongozi inalindwa na **neno la siri** (session-based)
-- Namba za simu zinasafishwa na kuthibitishwa kwa muundo wa Tanzania (`07...` → `2557...`)
-- Badilisha `SECRET_KEY` kwenye `kanda_connect/settings.py` kabla ya production
-
----
-
-## 📜 Leseni
-
-Programu ya ndani ya Kanisa la Manzese SDA — imetengenezwa kwa ajili ya matumizi ya kanda ya Sinza na Kijitonyama.
-
----
-
-*Imetengenezwa kwa Upendo ❤️ — Manzese SDA Church (Sinza na Kijitonyama Zone)*

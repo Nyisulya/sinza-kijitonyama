@@ -178,3 +178,54 @@ class KandaSecurityTestCase(TestCase):
         response = self.client.post(reverse('leader_login'), {'passcode': 'wrong_one'})
         self.assertEqual(response.status_code, 200) # Re-renders login page
         self.assertFalse(self.client.session.get('is_leader'))
+
+
+class NextSMSTestCase(TestCase):
+    def setUp(self):
+        self.client = Client()
+        session = self.client.session
+        session['is_leader'] = True
+        session.save()
+
+    def test_phone_cleaner(self):
+        from .sms_helper import clean_phone_number
+        self.assertEqual(clean_phone_number("0787661560"), "255787661560")
+        self.assertEqual(clean_phone_number("+255 787 661 560"), "255787661560")
+        self.assertEqual(clean_phone_number("255787661560"), "255787661560")
+        self.assertEqual(clean_phone_number("787661560"), "255787661560")
+        self.assertEqual(clean_phone_number("0655123456"), "255655123456")
+
+    def test_auth_headers_generator(self):
+        from .sms_helper import get_auth_headers_list
+        # Test username and password
+        headers = get_auth_headers_list("my_user", "my_pass")
+        self.assertIn("Basic bXlfdXNlcjpteV9wYXNz", headers)
+
+        # Test single token
+        token_headers = get_auth_headers_list("d9cb8faef4158c2055cb150be7083208", "")
+        self.assertIn("Bearer d9cb8faef4158c2055cb150be7083208", token_headers)
+
+    def test_mock_send_test_sms(self):
+        from .sms_helper import send_test_sms
+        config = SMSConfig.objects.create(api_key="MOCK_KEY", secret_key="MOCK_SECRET", is_active=True)
+        res = send_test_sms("0787661560", "Jaribio", config)
+        self.assertTrue(res["success"])
+        self.assertEqual(res["mode"], "MOCK")
+
+    def test_sms_settings_test_action(self):
+        config = SMSConfig.objects.create(api_key="MOCK_KEY", secret_key="MOCK_SECRET", is_active=True)
+        response = self.client.post(reverse('sms_settings'), {
+            'action': 'test_sms',
+            'test_phone': '0787661560',
+            'test_message': 'Jaribio la SMS'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Ujumbe wa jaribio umerekodiwa kikamilifu")
+
+    def test_sms_settings_check_balance(self):
+        config = SMSConfig.objects.create(api_key="MOCK_KEY", secret_key="MOCK_SECRET", is_active=True)
+        response = self.client.post(reverse('sms_settings'), {
+            'action': 'check_balance'
+        })
+        self.assertEqual(response.status_code, 200)
+

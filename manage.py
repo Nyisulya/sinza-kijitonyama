@@ -4,6 +4,13 @@ import os
 import sys
 
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
+deps_dir = os.path.join(BASE_DIR, 'deps')
+if os.path.exists(deps_dir) and deps_dir not in sys.path:
+    sys.path.insert(0, deps_dir)
+
 def main():
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'kanda_connect.settings')

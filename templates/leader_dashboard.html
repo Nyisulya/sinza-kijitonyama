@@ -3,13 +3,13 @@
 {% block title %}Dashibodi ya Kiongozi{% endblock %}
 
 {% block content %}
-<div style="margin-bottom: 30px;">
+<div style="margin-bottom: 25px;">
     <h1 style="font-size: 28px; font-weight: 800; color: var(--primary); margin-bottom: 5px;">Dashibodi ya Viongozi</h1>
     <p style="color: var(--text-muted); font-size: 15px;">Usimamizi wa Kanda ya Sinza na Kijitonyama - Manzese SDA.</p>
 </div>
 
 <!-- Statistics Cards -->
-<div class="stat-grid">
+<div class="stat-grid" style="margin-bottom: 25px;">
     <div class="stat-card">
         <div class="stat-icon blue">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
@@ -25,58 +25,43 @@
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
         </div>
         <div class="stat-details">
-            <span class="stat-value">{{ rsvp_yes_count }}</span>
-            <span class="stat-name">Wanaokuja (RSVP)</span>
+            <span class="stat-value">{{ completed_present_count }}</span>
+            <span class="stat-name">Mahudhurio ya Mwisho</span>
         </div>
     </div>
-    
-    <div class="stat-card">
-        <div class="stat-icon red">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
-        </div>
-        <div class="stat-details">
-            <span class="stat-value">{{ rsvp_no_count }}</span>
-            <span class="stat-name">Hawaji (RSVP)</span>
-        </div>
-    </div>
-    
+
     <div class="stat-card">
         <div class="stat-icon orange">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
         </div>
         <div class="stat-details">
-            <span class="stat-value">{{ rsvp_transport_count }}</span>
-            <span class="stat-name">Wanahitaji Usafiri</span>
+            <span class="stat-value">{{ completed_absent_count }}</span>
+            <span class="stat-name">Wasiokuwepo (Mwisho)</span>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(13, 148, 136, 0.1); color: var(--secondary);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        </div>
+        <div class="stat-details">
+            <span class="stat-value">{{ ibada_completed_count }}</span>
+            <span class="stat-name">Ibada Zilizofanyika</span>
         </div>
     </div>
 </div>
 
-<!-- Leaders Dashboard Action Buttons -->
-<div class="dashboard-actions">
-    <a href="#sajili-ibada-section" class="btn-primary" style="background: linear-gradient(135deg, var(--primary), var(--primary-light));">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-        Sajili Ibada Mpya
-    </a>
-    
-    {% if upcoming_ibada and not upcoming_ibada.is_completed %}
-        <a href="{% url 'take_attendance' upcoming_ibada.id %}" class="btn-primary" style="background: linear-gradient(135deg, var(--rsvp-yes), #16a34a);">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-            Anza Mahudhurio (Roll Call)
-        </a>
-    {% endif %}
-    
+<!-- Main Action Buttons -->
+<div class="dashboard-actions" style="margin-bottom: 25px;">
     {% if upcoming_ibada %}
-        <form action="{% url 'trigger_sms' upcoming_ibada.id %}" method="post" style="margin: 0;" onsubmit="return confirm('Je, una uhakika unataka kutuma SMS za kiotomatiki kwa washiriki wote hivi sasa?');">
-            {% csrf_token %}
-            <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, var(--secondary), var(--secondary-light));">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                Tuma SMS za Mwaliko Sasa
-            </button>
-        </form>
+        <a href="{% url 'take_attendance' upcoming_ibada.id %}" class="btn-primary" style="background: linear-gradient(135deg, var(--secondary), var(--secondary-light));">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            Chukua Mahudhurio (Rollcall)
+        </a>
     {% endif %}
 
     <a href="{% url 'attendance_history' %}" class="btn-secondary" style="color: var(--text-main); border-color: var(--border);">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
         Historia ya Mahudhurio
     </a>
 
@@ -86,8 +71,8 @@
     </a>
 
     <a href="{% url 'sms_settings' %}" class="btn-secondary" style="color: var(--text-main); border-color: var(--border);">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-        Mazingira ya SMS
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        Huduma ya SMS
     </a>
 
     <a href="{% url 'sms_logs' %}" class="btn-secondary" style="color: var(--text-main); border-color: var(--border);">
@@ -96,195 +81,116 @@
     </a>
 
     <a href="/admin/" target="_blank" class="btn-secondary" style="color: var(--text-main); border-color: var(--border);">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
         Admin Panel
     </a>
 </div>
 
-{% if upcoming_ibada and missing_members %}
-<!-- RSVP Reminder SMS Alert -->
-<div class="card" style="margin-top: 20px; border-left: 4px solid var(--accent);">
-    <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap; justify-content: space-between;">
-        <div style="display: flex; align-items: center; gap: 14px;">
-            <div style="background: #fef3c7; width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #d97706;">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-            </div>
-            <div>
-                <strong style="font-size: 15px;">{{ missing_members|length }} washiriki hawajajaza RSVP</strong>
-                <p style="font-size: 13px; color: var(--text-muted); margin: 2px 0 0;">Tuma SMS za kikumbusho kwa wote kwa kubofya moja.</p>
-            </div>
+{% if upcoming_ibada %}
+<!-- Upcoming Ibada Alert & SMS Trigger Banner -->
+<div class="card" style="margin-bottom: 25px; border-left: 5px solid var(--primary); background: #ffffff;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+        <div>
+            <span class="status-badge" style="background: rgba(30, 58, 138, 0.1); color: var(--primary); font-weight: 800; font-size: 11px;">IBADA INAYOKUJA</span>
+            <h2 style="font-size: 22px; font-weight: 800; color: var(--primary); margin-top: 5px;">Familia ya {{ upcoming_ibada.mwenyeji }}</h2>
+            <div style="color: var(--text-muted); font-size: 14px; font-weight: 600;">{{ upcoming_ibada.tarehe_muda|date:"l, d M Y" }} saa {{ upcoming_ibada.tarehe_muda|date:"h:i A" }}</div>
         </div>
-        <form action="{% url 'send_rsvp_reminder' upcoming_ibada.id %}" method="post" style="margin: 0;">
+
+        <form action="{% url 'trigger_sms' upcoming_ibada.id %}" method="post" style="margin: 0;">
             {% csrf_token %}
-            <button type="submit" class="btn-primary" style="background: linear-gradient(135deg, #d97706, #f59e0b);" onclick="return confirm('Je, una uhakika unataka kutuma SMS za kikumbusho kwa {{ missing_members|length }} washiriki?');">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                Tuma Kikumbusho kwa {{ missing_members|length }}
+            <button type="submit" class="btn-primary" onclick="return confirm('Je, una uhakika unataka kutuma SMS ya Mwaliko kwa washiriki wote {{ washiriki_count }}?')" style="background: linear-gradient(135deg, var(--primary), var(--primary-light)); display: inline-flex; align-items: center; gap: 8px; font-weight: 700; padding: 12px 20px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                Tuma Mwaliko wa SMS kwa Washiriki Wote
             </button>
         </form>
     </div>
 </div>
 {% endif %}
 
-<div class="home-grid" style="grid-template-columns: 8fr 4fr;">
-    
-    <!-- Left Column: RSVP Lists -->
+<div class="home-grid" style="grid-template-columns: 1fr 1fr; gap: 25px;">
+
+    <!-- Left Column: Attendance Report of Latest Completed Meeting -->
     <div>
         <div class="card">
             <h2 class="card-title">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                Orodha ya RSVP: Ibada ya {{ upcoming_ibada.mwenyeji|default:"Wiki Hii" }}
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                Ripoti ya Mahudhurio: Ibada Iliyopita
             </h2>
-            
-            {% if upcoming_ibada %}
-                <div class="table-wrapper">
-                    <table class="dashboard-table">
+            {% if latest_completed_ibada %}
+                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px;">
+                    Familia ya <strong>{{ latest_completed_ibada.mwenyeji }}</strong> ({{ latest_completed_ibada.tarehe_muda|date:"d M Y" }}). 
+                    Waliohudhuria: <strong style="color: var(--rsvp-yes);">{{ completed_present_count }}</strong>, 
+                    Wasiokuwepo: <strong style="color: var(--rsvp-no);">{{ completed_absent_count }}</strong>.
+                </p>
+                <div style="max-height: 380px; overflow-y: auto;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
                         <thead>
-                            <tr>
-                                <th>Jina la Mshiriki</th>
-                                <th>Namba ya Simu</th>
-                                <th>Hali (Status)</th>
-                                <th>Maoni / Maelezo</th>
-                                <th>Muda wa Kujaza</th>
+                            <tr style="border-bottom: 2px solid var(--border); text-align: left;">
+                                <th style="padding: 8px 10px;">Jina</th>
+                                <th style="padding: 8px 10px;">Hali</th>
+                                <th style="padding: 8px 10px;">Simu</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for rsvp in rsvps %}
-                                <tr>
-                                    <td style="font-weight: 600;">{{ rsvp.mshiriki.jina }}</td>
-                                    <td>{{ rsvp.mshiriki.simu }}</td>
-                                    <td>
-                                        {% if rsvp.status == 'NITAKUJA' %}
-                                            <span class="badge-status badge-status-yes">Nitakuja</span>
-                                        {% elif rsvp.status == 'SITAFANIKIWA' %}
-                                            <span class="badge-status badge-status-no">Hatakuja</span>
-                                        {% else %}
-                                            <span class="badge-status badge-status-transport">Usafiri</span>
-                                        {% endif %}
-                                    </td>
-                                    <td style="color: var(--text-muted); font-size: 14px;">{{ rsvp.maoni|default:"-" }}</td>
-                                    <td style="font-size: 13px; color: var(--text-muted);">{{ rsvp.updated_at|date:"d M Y, H:i" }}</td>
-                                </tr>
-                            {% empty %}
-                                <tr>
-                                    <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 30px;">Hakuna washiriki waliodhibitisha bado kwa ibada hii.</td>
-                                </tr>
+                            {% for record in completed_attendance %}
+                            <tr style="border-bottom: 1px solid var(--border);">
+                                <td style="padding: 8px 10px; font-weight: 600;">{{ record.mshiriki.jina }}</td>
+                                <td style="padding: 8px 10px;">
+                                    {% if record.is_present %}
+                                        <span style="background: #dcfce7; color: #16a34a; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 700;">Alihudhuria</span>
+                                    {% else %}
+                                        <span style="background: #fee2e2; color: #dc2626; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 700;">Hakuhudhuria</span>
+                                    {% endif %}
+                                </td>
+                                <td style="padding: 8px 10px; color: var(--text-muted); font-size: 13px;">{{ record.mshiriki.simu }}</td>
+                            </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
             {% else %}
-                <p style="color: var(--text-muted); text-align: center; padding: 40px 0;">Hakuna ibada iliyoratibiwa kwa sasa, hakuna data za RSVP.</p>
+                <p style="color: var(--text-muted); text-align: center; padding: 40px 0;">Bado hakuna ripoti ya ibada iliyokamilika.</p>
             {% endif %}
         </div>
-
-        <!-- Attendance Report for last completed meeting -->
-        {% if latest_completed_ibada %}
-            <div class="card" style="margin-top: 24px;">
-                <h2 class="card-title" style="color: var(--secondary);">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                    Ripoti ya Mahudhurio: Ibada ya Familia ya {{ latest_completed_ibada.mwenyeji }}
-                </h2>
-                <p style="color: var(--text-muted); font-size: 14.5px; margin-bottom: 15px;">
-                    Ibada iliyokamilika tarehe {{ latest_completed_ibada.tarehe_muda|date:"d M Y" }}. 
-                    Waliohudhuria: <strong style="color: var(--rsvp-yes);">{{ completed_present_count }}</strong>, Waliofarishwa (Kukosa): <strong style="color: var(--rsvp-no);">{{ completed_absent_count }}</strong>.
-                </p>
-                
-                <div class="table-wrapper">
-                    <table class="dashboard-table">
-                        <thead>
-                            <tr>
-                                <th>Jina la Mshiriki</th>
-                                <th>Hali (Attendance)</th>
-                                <th>Namba ya Simu</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for record in completed_attendance %}
-                                <tr>
-                                    <td style="font-weight: 600;">{{ record.mshiriki.jina }}</td>
-                                    <td>
-                                        {% if record.is_present %}
-                                            <span class="badge-status badge-status-yes">Alihudhuria</span>
-                                        {% else %}
-                                            <span class="badge-status badge-status-no">Hakuhudhuria</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ record.mshiriki.simu }}</td>
-                                </tr>
-                            {% empty %}
-                                <tr>
-                                    <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 20px;">Hakuna kumbukumbu za mahudhurio zilizohifadhiwa.</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        {% endif %}
     </div>
 
-    <!-- Right Column: Follow-up alerts for missing members -->
+    <!-- Right Column: Create New Ibada Form -->
     <div>
-        <div class="card">
-            <h2 class="card-title" style="color: #92400e;">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent);"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                Kufuatilia Washiriki
-            </h2>
-            <p style="color: var(--text-muted); font-size: 13.5px; margin-bottom: 20px;">
-                Washiriki waliosajiliwa lakini hawajajaza RSVP kwa wiki hii. Bofya alama ya WhatsApp ili kuwakumbusha kwa ujumbe wa haraka.
-            </p>
-            
-            <div class="followup-list">
-                {% for mshiriki in missing_members %}
-                    <div class="followup-item">
-                        <div class="followup-text">
-                            <div style="font-weight: 700; color: var(--text-main);">{{ mshiriki.jina }}</div>
-                            <div style="font-size: 12px; color: var(--text-muted);">Simu: {{ mshiriki.simu }}</div>
-                        </div>
-                        <div class="followup-actions">
-                            <!-- WhatsApp follow-up link -->
-                            <a href="https://wa.me/{{ mshiriki.simu }}?text=Habari%20{{ mshiriki.jina|urlencode }}%2C%20natumai%20uko%20salama.%20Kikumbusho%20cha%20ibada%20yetu%20ya%20Kanda%20ya%20Sinza%20%26%20Kijitonyama%20Jumapili%20hii%20kwa%20familia%20ya%20{% if upcoming_ibada %}{{ upcoming_ibada.mwenyeji|urlencode }}{% else %}mwenyeji%20mpya{% endif %}.%20Tafadhali%20thibitisha%20kuhudhuria%20kwako%20hapa%3A%20http%3A%2F%2F127.0.0.1%3A8000%2F%20%20Karibu%20sana%21" 
-                               target="_blank" class="btn-sm-whatsapp" aria-label="Tuma WhatsApp">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-                                Kikumbusho
-                            </a>
-                        </div>
-                    </div>
-                {% empty %}
-                    <p style="color: var(--text-muted); font-size: 14px; text-align: center; padding: 20px 0;">Washiriki wote tayari wamejaza RSVP wiki hii! Barikiwa sana. 🎉</p>
-                {% endfor %}
-            </div>
-        </div>
-
-        <!-- Sajili Ibada Mpya Card -->
-        <div class="card" id="sajili-ibada-section" style="margin-top: 24px;">
+        <div class="card" id="new-ibada-section" style="border-top: 4px solid var(--primary);">
             <h2 class="card-title">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                Sajili Ibada Mpya
+                Sajili Ibada Mpya ya Kanda
             </h2>
             <form action="{% url 'create_ibada' %}" method="post">
                 {% csrf_token %}
                 <div class="form-group">
-                    <label for="mwenyeji" class="form-label">Familia Mwenyeji (Host)</label>
+                    <label for="mwenyeji" class="form-label">Familia Mwenyeji (Host) *</label>
                     <input type="text" name="mwenyeji" id="mwenyeji" class="form-control" placeholder="Mfano: Mzee Joshua au Kijitonyama" required>
                 </div>
+                
                 <div class="form-group">
-                    <label for="tarehe_muda" class="form-label">Tarehe na Muda</label>
+                    <label for="tarehe_muda" class="form-label">Tarehe na Muda wa Ibada *</label>
                     <input type="datetime-local" name="tarehe_muda" id="tarehe_muda" class="form-control" required>
                 </div>
+
                 <div class="form-group">
-                    <label for="ramani_link" class="form-label">Kiungo cha Ramani (Google Maps)</label>
-                    <input type="url" name="ramani_link" id="ramani_link" class="form-control" placeholder="Mfano: https://maps.google.com/?q=...">
+                    <label for="somo" class="form-label">Somo / Mada ya Kujadili (Hiari)</label>
+                    <input type="text" name="somo" id="somo" class="form-control" placeholder="Mfano: Somo la 5 la Mwongozo wa Sabato">
                 </div>
+
                 <div class="form-group">
-                    <label for="maelekezo" class="form-label">Maelekezo ya Kufika (Mahali)</label>
-                    <textarea name="maelekezo" id="maelekezo" rows="2" class="form-control" placeholder="Mfano: Karibu na Kanisa la Lutheran Sinza..."></textarea>
+                    <label for="maelekezo" class="form-label">Maelekezo ya Kufika (Mahali) *</label>
+                    <textarea name="maelekezo" id="maelekezo" rows="2" class="form-control" placeholder="Mfano: Karibu na Kanisa la Lutheran, nyumba ya ghorofa ya pili..." required></textarea>
                 </div>
+
                 <div class="form-group">
-                    <label for="masomo" class="form-label">Somo / Mada ya Kujadili</label>
-                    <input type="text" name="masomo" id="masomo" class="form-control" placeholder="Mfano: Somo la 5 la Mwongozo wa Biblia">
+                    <label for="ramani_link" class="form-label">Kiungo cha Ramani (Google Maps Link)</label>
+                    <input type="url" name="ramani_link" id="ramani_link" class="form-control" placeholder="Mfano: https://maps.app.goo.gl/...">
                 </div>
-                <button type="submit" class="btn-primary btn-block">Sajili Ibada</button>
+
+                <button type="submit" class="btn-primary btn-block" style="padding: 12px; font-weight: 700; background: linear-gradient(135deg, var(--primary), var(--primary-light));">
+                    Sajili Ibada Sasa
+                </button>
             </form>
         </div>
     </div>

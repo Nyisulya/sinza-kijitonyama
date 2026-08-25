@@ -3,7 +3,7 @@ from .models import Mshiriki, Ibada, Uthibitisho, SMSConfig, Mahudhurio, SMSLog
 
 @admin.register(Mshiriki)
 class MshirikiAdmin(admin.ModelAdmin):
-    list_display = ('jina', 'simu', 'familia', 'jukumu', 'is_active', 'created_at')
+    list_display = ('jina', 'simu', 'familia', 'jukumu', 'cheo', 'is_active', 'created_at')
     list_filter = ('jukumu', 'is_active')
     search_fields = ('jina', 'simu', 'familia')
     ordering = ('jina',)

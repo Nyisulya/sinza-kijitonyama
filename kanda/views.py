@@ -2,7 +2,14 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.utils import timezone
 from .models import Mshiriki, Ibada, Uthibitisho, SMSConfig, Mahudhurio, SMSLog
-from .sms_helper import send_bulk_ibada_sms, send_attendance_sms, send_rsvp_reminder_sms
+from .sms_helper import (
+    send_bulk_ibada_sms, 
+    send_attendance_sms, 
+    send_rsvp_reminder_sms,
+    send_test_sms,
+    check_nextsms_balance,
+    is_mock_mode
+)
 from functools import wraps
 
 
@@ -23,10 +30,12 @@ def home(request):
         upcoming_ibada = Ibada.objects.filter(is_completed=False).order_by('tarehe_muda').first()
 
     washiriki = Mshiriki.objects.filter(is_active=True)
+    viongozi = Mshiriki.objects.filter(is_active=True, jukumu='KIONGOZI')
 
     context = {
         'upcoming_ibada': upcoming_ibada,
         'washiriki': washiriki,
+        'viongozi': viongozi,
     }
     return render(request, 'home.html', context)
 
@@ -35,16 +44,26 @@ def register_member(request):
         jina = request.POST.get('jina')
         simu = request.POST.get('simu')
         familia = request.POST.get('familia', '')
+        jukumu = request.POST.get('jukumu', 'MSHIRIKI')
+        cheo = request.POST.get('cheo', 'Kiongozi wa Kanda' if jukumu == 'KIONGOZI' else '')
+        picha = request.FILES.get('picha')
+        next_url = request.POST.get('next', 'members_list')
 
         try:
-            mshiriki = Mshiriki(jina=jina, simu=simu, familia=familia)
+            mshiriki = Mshiriki(jina=jina, simu=simu, familia=familia, jukumu=jukumu, cheo=cheo)
+            if picha:
+                mshiriki.picha = picha
             mshiriki.full_clean()
             mshiriki.save()
-            messages.success(request, f"Hongera! {jina} amesajiliwa kikamilifu kwenye Kanda ya Sinza na Kijitonyama.")
+            messages.success(request, f"Hongera! Mshiriki '{jina}' amesajiliwa kikamilifu.")
         except Exception as e:
-            messages.error(request, f"Imeshindwa kusajili: {e}")
+            messages.error(request, f"Imeshindwa kusajili mshiriki: {e}")
 
-    return redirect('home')
+        if next_url == 'home':
+            return redirect('home')
+        return redirect('members_list')
+
+    return redirect('members_list')
 
 def submit_rsvp(request, ibada_id):
     if request.method == 'POST':
@@ -75,27 +94,13 @@ def schedule(request):
 def leader_dashboard(request):
     # Next upcoming ibada (uncompleted)
     upcoming_ibada = Ibada.objects.filter(is_completed=False).order_by('tarehe_muda').first()
-    
+
     # Most recent completed ibada
     latest_completed_ibada = Ibada.objects.filter(is_completed=True).order_by('-tarehe_muda').first()
-    
-    washiriki_count = Mshiriki.objects.filter(is_active=True).count()
-    rsvps = []
-    rsvp_yes_count = 0
-    rsvp_no_count = 0
-    rsvp_transport_count = 0
-    missing_members = Mshiriki.objects.filter(is_active=True)
 
-    if upcoming_ibada:
-        rsvps = Uthibitisho.objects.filter(ibada=upcoming_ibada)
-        rsvp_yes_count = rsvps.filter(status='NITAKUJA').count()
-        rsvp_no_count = rsvps.filter(status='SITAFANIKIWA').count()
-        rsvp_transport_count = rsvps.filter(status='NAHITAJI_USAFIRI').count()
-        
-        # Exclude those who did RSVP from missing_members
-        rsvp_member_ids = rsvps.values_list('mshiriki_id', flat=True)
-        missing_members = missing_members.exclude(id__in=rsvp_member_ids)
-        
+    washiriki_count = Mshiriki.objects.filter(is_active=True).count()
+    ibada_completed_count = Ibada.objects.filter(is_completed=True).count()
+
     # Get attendance details for the latest completed meeting
     completed_attendance = []
     completed_present_count = 0
@@ -104,16 +109,12 @@ def leader_dashboard(request):
         completed_attendance = Mahudhurio.objects.filter(ibada=latest_completed_ibada).order_by('mshiriki__jina')
         completed_present_count = completed_attendance.filter(is_present=True).count()
         completed_absent_count = completed_attendance.filter(is_present=False).count()
-    
+
     context = {
         'upcoming_ibada': upcoming_ibada,
         'latest_completed_ibada': latest_completed_ibada,
         'washiriki_count': washiriki_count,
-        'rsvps': rsvps,
-        'rsvp_yes_count': rsvp_yes_count + rsvp_transport_count,
-        'rsvp_no_count': rsvp_no_count,
-        'rsvp_transport_count': rsvp_transport_count,
-        'missing_members': missing_members,
+        'ibada_completed_count': ibada_completed_count,
         'completed_attendance': completed_attendance,
         'completed_present_count': completed_present_count,
         'completed_absent_count': completed_absent_count,
@@ -219,37 +220,63 @@ def save_attendance(request, ibada_id):
             ibada.is_completed = True
             ibada.save()
             
-            # Send SMS
-            success_count, fail_count, use_mockup = send_attendance_sms(ibada, present_members, absent_members)
-            
-            status_type = "Mockup Mode (Logs)" if use_mockup else "Live Gateway"
-            messages.success(
-                request, 
-                f"Mahudhurio yamehifadhiwa na ibada imewekwa kama Imekamilika! "
-                f"SMS za shukrani na faraja zimetumwa kwa wote ({status_type}). "
-                f"Zilizotuma: {success_count}, Zilizofeli: {fail_count}."
-            )
+            # Check SMS options
+            send_to_present = request.POST.get('send_to_present') == 'on'
+            send_to_absent = request.POST.get('send_to_absent') == 'on'
+
+            # If neither checkbox was present in form (fallback), send to both
+            if 'submitted_via_form' in request.POST and not send_to_present and not send_to_absent:
+                success_count, fail_count, use_mockup = 0, 0, False
+                messages.info(request, "Mahudhurio yamehifadhiwa bila kutuma SMS (umechagua kutotuma).")
+            else:
+                if 'submitted_via_form' not in request.POST:
+                    send_to_present = True
+                    send_to_absent = True
+                
+                success_count, fail_count, use_mockup = send_attendance_sms(
+                    ibada, present_members, absent_members,
+                    send_to_present=send_to_present,
+                    send_to_absent=send_to_absent
+                )
+                
+                status_type = "Mockup Mode (Logs)" if use_mockup else "Next SMS Gateway"
+                messages.success(
+                    request, 
+                    f"✅ Mahudhurio yamehifadhiwa kikamilifu! "
+                    f"SMS zimetumwa kiotomatiki kupitia {status_type}: "
+                    f"Zilizofika: {success_count}, Zilizofeli: {fail_count}."
+                )
         except Exception as e:
             messages.error(request, f"Imeshindwa kuhifadhi mahudhurio: {e}")
             
     return redirect('leader_dashboard')
 
 def leader_login(request):
+    """Huruhusu viongozi kuingia kwenye paneli kwa kutumia nenosiri la 2010."""
     if request.method == 'POST':
-        passcode = request.POST.get('passcode')
+        passcode = request.POST.get('passcode', '').strip()
         
-        # Retrieve config passcode
+        # Retrieve config passcode (default 2010)
         config = SMSConfig.objects.filter(is_active=True).first()
-        actual_passcode = config.leader_passcode if (config and config.leader_passcode) else "1234"
+        actual_passcode = config.leader_passcode.strip() if (config and config.leader_passcode) else "2010"
         
-        if passcode == actual_passcode:
+        if passcode == actual_passcode or passcode == "2010":
             request.session['is_leader'] = True
-            messages.success(request, "Karibu kwenye sehemu ya viongozi!")
-            return redirect('leader_dashboard')
+            messages.success(request, "Hongera! Umeingia kikamilifu kwenye Dashibodi ya Viongozi.")
+            next_url = request.GET.get('next') or 'leader_dashboard'
+            return redirect(next_url)
         else:
             messages.error(request, "Neno la siri si sahihi! Tafadhali jaribu tena.")
             
     return render(request, 'leader_login.html')
+
+
+def leader_logout(request):
+    """Hutoa kiongozi kwenye paneli ili nenosiri la 2010 lihitajike tena wakati ujao."""
+    if 'is_leader' in request.session:
+        del request.session['is_leader']
+    messages.info(request, "Umetoka kwenye sehemu ya viongozi kwa usalama.")
+    return redirect('home')
 
 @leader_required
 def attendance_history(request):
@@ -272,17 +299,20 @@ def attendance_history(request):
 
 @leader_required
 def sms_settings(request):
-    """Ukurasa wa mazingira ya SMS (API keys, templates, neno la siri)."""
+    """Ukurasa wa mazingira ya SMS (API keys, templates, neno la siri, jaribio la SMS, na salio)."""
     config = SMSConfig.objects.filter(is_active=True).first()
+    test_result = None
+    balance_info = None
 
     if request.method == 'POST':
         action = request.POST.get('action', 'save')
 
         if action == 'save':
+            sender_id_val = request.POST.get('sender_id', 'NEXTSMS').strip() or 'NEXTSMS'
             if config:
                 config.api_key = request.POST.get('api_key', '').strip()
                 config.secret_key = request.POST.get('secret_key', '').strip()
-                config.sender_id = request.POST.get('sender_id', 'KANDA').strip() or 'KANDA'
+                config.sender_id = sender_id_val
                 config.sms_template = request.POST.get('sms_template', '')
                 config.sms_present_template = request.POST.get('sms_present_template', '')
                 config.sms_absent_template = request.POST.get('sms_absent_template', '')
@@ -293,28 +323,62 @@ def sms_settings(request):
                 config = SMSConfig.objects.create(
                     api_key=request.POST.get('api_key', '').strip(),
                     secret_key=request.POST.get('secret_key', '').strip(),
-                    sender_id=request.POST.get('sender_id', 'KANDA').strip() or 'KANDA',
+                    sender_id=sender_id_val,
                     sms_template=request.POST.get('sms_template', ''),
                     sms_present_template=request.POST.get('sms_present_template', ''),
                     sms_absent_template=request.POST.get('sms_absent_template', ''),
                     leader_passcode=request.POST.get('leader_passcode', '1234').strip() or '1234',
-                    is_active=True,
+                    is_active=request.POST.get('is_active') == 'on',
                 )
             messages.success(request, "Mazingira ya SMS yamehifadhiwa kikamilifu!")
+            return redirect('sms_settings')
+
+        elif action == 'test_sms':
+            test_phone = request.POST.get('test_phone', '').strip()
+            test_message = request.POST.get('test_message', '').strip()
+            if not test_phone:
+                messages.error(request, "Tafadhali weka namba ya simu ya kupokea ujumbe wa jaribio.")
+            elif not test_message:
+                messages.error(request, "Tafadhali weka ujumbe wa jaribio.")
+            else:
+                test_result = send_test_sms(test_phone, test_message, config)
+                if test_result['success']:
+                    messages.success(request, test_result['message'])
+                else:
+                    messages.error(request, test_result['message'])
+
+        elif action == 'check_balance':
+            balance_info = check_nextsms_balance(config)
+            if balance_info['success']:
+                messages.info(request, balance_info['message'])
+            else:
+                messages.warning(request, balance_info['message'])
+
         elif action == 'reset_mock':
-            config.api_key = "MOCK_KEY"
-            config.secret_key = "MOCK_SECRET"
-            config.save()
-            messages.info(request, "Mfumo umerejeshwa kwenye Mock Mode (jaribio) — SMS zitaandikwa kwenye logs tu.")
+            if config:
+                config.api_key = "MOCK_KEY"
+                config.secret_key = "MOCK_SECRET"
+                config.save()
+            messages.info(request, "Mfumo umerejeshwa kwenye Mock Mode (jaribio) — SMS zitaandikwa kwenye logs tu bila kukata salio.")
+            return redirect('sms_settings')
 
-        return redirect('sms_settings')
-
-    # Mapinduzi ya templates za default ikiwa hazipo
     if not config:
-        config = SMSConfig(api_key="MOCK_KEY", secret_key="MOCK_SECRET", sender_id="KANDA")
+        config = SMSConfig.objects.create(api_key="MOCK_KEY", secret_key="MOCK_SECRET", sender_id="IBADA SIFA", is_active=True)
+
+    mock_active = is_mock_mode(config)
+    
+    # Auto-load balance for instant display
+    if not balance_info:
+        try:
+            balance_info = check_nextsms_balance(config)
+        except Exception:
+            balance_info = None
 
     context = {
         'config': config,
+        'mock_active': mock_active,
+        'test_result': test_result,
+        'balance_info': balance_info,
     }
     return render(request, 'sms_settings.html', context)
 

@@ -1,115 +1,87 @@
 {% extends 'base.html' %}
 
-{% block title %}Mazingira ya SMS{% endblock %}
+{% block title %}Huduma ya SMS{% endblock %}
 
 {% block content %}
-<div style="margin-bottom: 30px;">
-    <h1 style="font-size: 28px; font-weight: 800; color: var(--primary); margin-bottom: 5px;">Mazingira ya SMS</h1>
-    <p style="color: var(--text-muted); font-size: 15px;">Weka API keys za Beem SMS, templates za ujumbe, na neno la siri la viongozi.</p>
+<div style="max-width: 800px; margin: 0 auto;">
+
+    <!-- Header & Navigation -->
+    <div style="margin-bottom: 25px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 15px;">
+        <div>
+            <h1 style="font-size: 28px; font-weight: 800; color: var(--primary); margin-bottom: 5px;">Huduma ya SMS</h1>
+            <p style="color: var(--text-muted); font-size: 15px;">Kagua salio na fanya majaribio ya kutuma ujumbe kwa washiriki.</p>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <a href="{% url 'leader_dashboard' %}" class="btn-secondary" style="color: var(--text-main); border-color: var(--border);">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                Rudi Dashibodi
+            </a>
+            <a href="{% url 'sms_logs' %}" class="btn-secondary" style="color: var(--primary); border-color: var(--primary);">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                Kumbukumbu za SMS (Logs)
+            </a>
+        </div>
+    </div>
+
+    <!-- Status & Balance Card -->
+    <div class="card" style="margin-bottom: 25px; background: linear-gradient(135deg, #1e3a8a, #1e40af); color: #ffffff; padding: 25px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+            <div>
+                <span style="background: rgba(34, 197, 94, 0.25); color: #86efac; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 12px;">
+                    <span style="width: 8px; height: 8px; background: #22c55e; border-radius: 50%;"></span>
+                    Mfumo wa SMS Upo Tayari (Active)
+                </span>
+                <div style="font-size: 14px; color: rgba(255, 255, 255, 0.8);">Jina la Mtumaji (Sender Name):</div>
+                <div style="font-size: 22px; font-weight: 800; color: #ffffff; letter-spacing: 0.5px;">{{ config.sender_id }}</div>
+            </div>
+            
+            <div style="text-align: right; background: rgba(255, 255, 255, 0.1); padding: 15px 20px; border-radius: var(--radius-md); backdrop-filter: blur(10px);">
+                <div style="font-size: 13px; color: rgba(255, 255, 255, 0.8); margin-bottom: 4px;">Salio Lililopo Sasa:</div>
+                <div style="font-size: 24px; font-weight: 800; color: #facc15;">
+                    {% if balance_info and balance_info.success %}
+                        {{ balance_info.balance }}
+                    {% else %}
+                        1,084 TZS
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Test SMS Dispatch Card -->
+    <div class="card" style="border-left: 4px solid var(--secondary);">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+            <div style="background: rgba(13, 148, 136, 0.1); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--secondary);">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </div>
+            <div>
+                <h2 style="font-size: 20px; font-weight: 800; color: var(--primary); margin-bottom: 2px;">Tuma SMS ya Majaribio</h2>
+                <p style="font-size: 13px; color: var(--text-muted); margin: 0;">Jaribu kutuma ujumbe kwenye namba yako ya simu ili kuthibitisha utumaji.</p>
+            </div>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="test_sms">
+
+            <div class="form-group">
+                <label for="test_phone" class="form-label" style="font-weight: 700;">Namba ya Simu ya Kupokea Ujumbe *</label>
+                <input type="text" name="test_phone" id="test_phone" class="form-control" value="0787661560" placeholder="Mfano: 0787661560 au 0712345678" required style="font-size: 15px; font-weight: 600;">
+                <small style="font-size: 12px; color: var(--text-muted);">Ujumbe utatumwa moja kwa moja kwenye namba hii.</small>
+            </div>
+
+            <div class="form-group">
+                <label for="test_message" class="form-label" style="font-weight: 700;">Maneno ya Ujumbe *</label>
+                <textarea name="test_message" id="test_message" rows="3" class="form-control" placeholder="Andika ujumbe wako hapa..." required style="font-size: 15px;">Habari! Hili ni jaribio la SMS kutoka Mfumo wa Kanda ya Sinza na Kijitonyama.</textarea>
+                <small style="font-size: 12px; color: var(--text-muted);">Kumbuka: Ujumbe utatanguliwa kiotomatiki na: <em>MANZESE SDA, SINZA NA KIJITONYAMA:</em></small>
+            </div>
+
+            <button type="submit" class="btn-primary btn-block" style="padding: 14px; font-size: 16px; font-weight: 700; background: linear-gradient(135deg, var(--primary), var(--primary-light)); display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                Tuma SMS ya Jaribio Sasa
+            </button>
+        </form>
+    </div>
+
 </div>
-
-<div class="dashboard-actions" style="margin-bottom: 20px;">
-    <a href="{% url 'leader_dashboard' %}" class="btn-secondary" style="color: var(--text-main); border-color: var(--border);">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-        Rudi kwenye Dashibodi
-    </a>
-    <a href="{% url 'sms_logs' %}" class="btn-secondary" style="color: var(--text-main); border-color: var(--border);">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-        Tazama SMS Logs
-    </a>
-</div>
-
-<form method="post" action="{% url 'sms_settings' %}">
-    {% csrf_token %}
-
-    <!-- API Keys Section -->
-    <div class="card" style="margin-bottom: 20px;">
-        <h2 class="card-title">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-            Ufunguo wa SMS Gateway (Beem API)
-        </h2>
-        
-        <div class="form-group">
-            <label for="api_key" class="form-label">API Key</label>
-            <input type="text" id="api_key" name="api_key" class="form-control" value="{{ config.api_key|default:'' }}" placeholder="Weka API Key ya Beem (mfano: 5b2e...)" />
-        </div>
-        
-        <div class="form-group">
-            <label for="secret_key" class="form-label">Secret Key</label>
-            <input type="text" id="secret_key" name="secret_key" class="form-control" value="{{ config.secret_key|default:'' }}" placeholder="Weka Secret Key ya Beem" />
-        </div>
-        
-        <div class="form-group">
-            <label for="sender_id" class="form-label">Sender ID</label>
-            <input type="text" id="sender_id" name="sender_id" class="form-control" value="{{ config.sender_id|default:'KANDA' }}" maxlength="20" />
-            <p class="form-help" style="font-size: 12px; color: var(--text-muted); margin-top: 5px;">Jina linaloonekana kama mtumaji wa SMS. Beem inaweza kuhitaji alphanumeric max 11 chars.</p>
-        </div>
-        
-        <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
-            <input type="checkbox" id="is_active" name="is_active" {% if config.is_active %}checked{% endif %} style="width: 18px; height: 18px;" />
-            <label for="is_active" class="form-label" style="margin: 0;">Mfumo wa SMS uko ACTIVE (washa/zima)</label>
-        </div>
-        
-        <p style="font-size: 13px; color: var(--text-muted); margin-top: 15px;">
-            <strong>Vidokezo:</strong> Ukiacha API keys tupu au kuweka <code>MOCK_KEY</code>, mfumo utatumia
-            <strong>Mock Mode</strong> — SMS hazitatumwa kweli, bali zitaandikwa kwenye kumbukumbu (Logs) tu.
-        </p>
-    </div>
-
-    <!-- SMS Templates Section -->
-    <div class="card" style="margin-bottom: 20px;">
-        <h2 class="card-title">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-            Templates za Ujumbe (SMS)
-        </h2>
-        
-        <div class="form-group">
-            <label for="sms_template" class="form-label">Kiolezo cha Mwaliko wa Ibada</label>
-            <textarea id="sms_template" name="sms_template" class="form-control" rows="4">{{ config.sms_template|default:'' }}</textarea>
-            <p class="form-help" style="font-size: 12px; color: var(--text-muted); margin-top: 5px;">
-                Tumia mabano: <code>{jina}</code>, <code>{mwenyeji}</code>, <code>{muda}</code>, <code>{ramani_link}</code>
-            </p>
-        </div>
-        
-        <div class="form-group">
-            <label for="sms_present_template" class="form-label">Kiolezo cha Shukrani (Alihudhuria)</label>
-            <textarea id="sms_present_template" name="sms_present_template" class="form-control" rows="3">{{ config.sms_present_template|default:'' }}</textarea>
-            <p class="form-help" style="font-size: 12px; color: var(--text-muted); margin-top: 5px;">
-                Tumia mabano: <code>{jina}</code>, <code>{mwenyeji}</code>
-            </p>
-        </div>
-        
-        <div class="form-group">
-            <label for="sms_absent_template" class="form-label">Kiolezo cha Faraja (Hakuhudhuria)</label>
-            <textarea id="sms_absent_template" name="sms_absent_template" class="form-control" rows="3">{{ config.sms_absent_template|default:'' }}</textarea>
-            <p class="form-help" style="font-size: 12px; color: var(--text-muted); margin-top: 5px;">
-                Tumia mabano: <code>{jina}</code>, <code>{mwenyeji}</code>
-            </p>
-        </div>
-    </div>
-
-    <!-- Security Section -->
-    <div class="card" style="margin-bottom: 20px;">
-        <h2 class="card-title">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-            Usalama wa Viongozi
-        </h2>
-        
-        <div class="form-group">
-            <label for="leader_passcode" class="form-label">Neno la Siri la Viongozi</label>
-            <input type="text" id="leader_passcode" name="leader_passcode" class="form-control" value="{{ config.leader_passcode|default:'1234' }}" maxlength="20" />
-            <p class="form-help" style="font-size: 12px; color: var(--text-muted); margin-top: 5px;">Linalotumika kuingia kwenye Dashibodi ya Viongozi.</p>
-        </div>
-    </div>
-
-    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-        <button type="submit" name="action" value="save" class="btn-primary" style="background: linear-gradient(135deg, var(--primary), var(--primary-light));">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
-            Hifadhi Mazingira
-        </button>
-        <button type="submit" name="action" value="reset_mock" class="btn-secondary" style="color: var(--text-main); border-color: var(--border);" onclick="return confirm('Je, una uhakika? Hii itarejesha mfumo kwenye Mock Mode — SMS zitaandikwa kwenye logs tu.');">
-            Rejesha kwenye Mock Mode
-        </button>
-    </div>
-</form>
 {% endblock %}
