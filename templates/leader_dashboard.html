@@ -336,11 +336,11 @@ document.addEventListener('DOMContentLoaded', function() {
         let previewText = '';
 
         if (hasRamani) {
-            previewText = `SINZA & KIJITONYAMA: Baraka, karibu Ibada ya Anza na Bwana kesho Jpili 12:30 Asubuhi kwa ${hostName}. Ramani: ${ramaniInput.value.trim()} . Karibu!`;
+            previewText = `MANZESE SDA\nHabari Baraka, karibu Ibada ya Anza na Bwana kesho Jpili 12:30 Asubuhi kwa ${hostName}. Ramani: ${ramaniInput.value.trim()} . Karibu!`;
         } else if (hasMaelekezo) {
-            previewText = `SINZA & KIJITONYAMA: Habari Baraka, karibu Ibada ya Anza na Bwana kesho Jpili 12:30 Asubuhi kwa ${hostName} (${maelekezoInput.value.trim()}). Karibu sana!`;
+            previewText = `MANZESE SDA\nHabari Baraka, karibu Ibada ya Anza na Bwana kesho Jpili 12:30 Asubuhi kwa ${hostName} (${maelekezoInput.value.trim()}). Karibu sana!`;
         } else {
-            previewText = `MANZESE SDA (SINZA & KIJITONYAMA): Habari Baraka, karibu Ibada ya Anza na Bwana kesho Jpili 12:30 Asubuhi kwa ${hostName}. Karibu sana!`;
+            previewText = `MANZESE SDA (SINZA & KIJITONYAMA)\nHabari Baraka, karibu Ibada ya Anza na Bwana kesho Jpili 12:30 Asubuhi kwa ${hostName}. Karibu sana!`;
         }
 
         smsPreviewBox.innerText = previewText;

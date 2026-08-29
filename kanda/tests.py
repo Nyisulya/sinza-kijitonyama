@@ -245,21 +245,21 @@ class NextSMSTestCase(TestCase):
         first_name = member.jina.strip().split()[0].capitalize()
 
         # 1. Invitation with Location
-        msg_location = f"SINZA & KIJITONYAMA: Habari {first_name}, karibu Ibada ya Anza na Bwana {time_str} kwa {ibada.mwenyeji} ({ibada.maelekezo}). Karibu sana!"
+        msg_location = f"MANZESE SDA\nHabari {first_name}, karibu Ibada ya Anza na Bwana {time_str} kwa {ibada.mwenyeji} ({ibada.maelekezo}). Karibu sana!"
         self.assertLessEqual(len(msg_location), 160)
         self.assertEqual(first_name, "Bonaventura")
 
         # 2. Invitation with Map link
         ibada.ramani_link = "https://maps.app.goo.gl/xyz123"
-        msg_map = f"SINZA & KIJITONYAMA: {first_name}, karibu Ibada ya Anza na Bwana {time_str} kwa {ibada.mwenyeji}. Ramani: {ibada.ramani_link} . Karibu!"
+        msg_map = f"MANZESE SDA\nHabari {first_name}, karibu Ibada ya Anza na Bwana {time_str} kwa {ibada.mwenyeji}. Ramani: {ibada.ramani_link} . Karibu!"
         self.assertLessEqual(len(msg_map), 160)
 
         # 3. Thank You SMS
-        msg_thanks = f"MANZESE SDA: Habari {first_name}, asante kwa kushiriki Ibada ya Kanda leo kwa {ibada.mwenyeji}. Uwepo wako ulikuwa baraka. Ubarikiwe sana!"
+        msg_thanks = f"MANZESE SDA\nHabari {first_name}, asante kwa kushiriki Ibada ya Kanda leo kwa {ibada.mwenyeji}. Uwepo wako ulikuwa baraka. Ubarikiwe sana!"
         self.assertLessEqual(len(msg_thanks), 160)
 
         # 4. Absent SMS
-        msg_absent = f"MANZESE SDA: Habari {first_name}, tulikumiss sana kwenye Ibada ya Kanda leo kwa {ibada.mwenyeji}. Ubarikiwe na uwe na juma njema. Karibu ibada ijayo!"
+        msg_absent = f"MANZESE SDA\nHabari {first_name}, tulikumiss sana kwenye Ibada ya Kanda leo kwa {ibada.mwenyeji}. Ubarikiwe na uwe na juma njema. Karibu ibada ijayo!"
         self.assertLessEqual(len(msg_absent), 160)
 
 

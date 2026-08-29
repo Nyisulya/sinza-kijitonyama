@@ -549,18 +549,21 @@ def send_bulk_ibada_sms(ibada):
 
         if ramani_link:
             message = (
-                f"SINZA & KIJITONYAMA: {first_name}, karibu Ibada ya Anza na Bwana "
-                f"{time_str} kwa {mwenyeji}. Ramani: {ramani_link} . Karibu!"
+                f"MANZESE SDA\n"
+                f"Habari {first_name}, karibu Ibada ya Anza na Bwana {time_str} "
+                f"kwa {mwenyeji}. Ramani: {ramani_link} . Karibu!"
             )
         elif maelekezo:
             message = (
-                f"SINZA & KIJITONYAMA: Habari {first_name}, karibu Ibada ya Anza na Bwana "
-                f"{time_str} kwa {mwenyeji} ({maelekezo}). Karibu sana!"
+                f"MANZESE SDA\n"
+                f"Habari {first_name}, karibu Ibada ya Anza na Bwana {time_str} "
+                f"kwa {mwenyeji} ({maelekezo}). Karibu sana!"
             )
         else:
             message = (
-                f"MANZESE SDA (SINZA & KIJITONYAMA): Habari {first_name}, karibu "
-                f"Ibada ya Anza na Bwana {time_str} kwa {mwenyeji}. Karibu sana!"
+                f"MANZESE SDA (SINZA & KIJITONYAMA)\n"
+                f"Habari {first_name}, karibu Ibada ya Anza na Bwana {time_str} "
+                f"kwa {mwenyeji}. Karibu sana!"
             )
 
         is_sent = send_single_sms(member.simu, message, config, mshiriki=member, ibada=ibada, sms_type='INVITATION')
@@ -591,7 +594,8 @@ def send_rsvp_reminder_sms(ibada, members):
         raw_name = (member.jina or "").strip()
         first_name = raw_name.split()[0].capitalize() if raw_name else "Mpendwa"
         message = (
-            f"SINZA & KIJITONYAMA: Habari {first_name}, tafadhali thibitisha mahudhurio ya Ibada "
+            f"MANZESE SDA\n"
+            f"Habari {first_name}, tafadhali thibitisha mahudhurio ya Ibada "
             f"{time_str} kwa {mwenyeji}. Karibu sana tubarikiwe!"
         )
         is_sent = send_single_sms(member.simu, message, config, mshiriki=member, ibada=ibada, sms_type='REMINDER')
@@ -623,7 +627,8 @@ def send_attendance_sms(ibada, present_members, absent_members, send_to_present=
                 message = custom_present_msg.strip().replace("{jina}", first_name).replace("{mwenyeji}", mwenyeji)
             else:
                 message = (
-                    f"MANZESE SDA: Habari {first_name}, asante kwa kushiriki Ibada ya Kanda leo "
+                    f"MANZESE SDA\n"
+                    f"Habari {first_name}, asante kwa kushiriki Ibada ya Kanda leo "
                     f"kwa {mwenyeji}. Uwepo wako ulikuwa baraka. Ubarikiwe sana!"
                 )
             is_sent = send_single_sms(member.simu, message, config, mshiriki=member, ibada=ibada, sms_type='THANK_YOU')
@@ -641,7 +646,8 @@ def send_attendance_sms(ibada, present_members, absent_members, send_to_present=
                 message = custom_absent_msg.strip().replace("{jina}", first_name).replace("{mwenyeji}", mwenyeji)
             else:
                 message = (
-                    f"MANZESE SDA: Habari {first_name}, tulikumiss sana kwenye Ibada ya Kanda leo "
+                    f"MANZESE SDA\n"
+                    f"Habari {first_name}, tulikumiss sana kwenye Ibada ya Kanda leo "
                     f"kwa {mwenyeji}. Ubarikiwe na uwe na juma njema. Karibu ibada ijayo!"
                 )
             is_sent = send_single_sms(member.simu, message, config, mshiriki=member, ibada=ibada, sms_type='ENCOURAGEMENT')
