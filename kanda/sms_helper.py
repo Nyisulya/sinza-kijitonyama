@@ -104,24 +104,16 @@ def get_auth_headers_list(api_key, secret_key):
 
 def is_mock_mode(config):
     """Kuangalia kama mfumo uko kwenye Mock Mode."""
-    # Kama kuna keys za NextSMS, siyo mock kamwe!
     if not config:
         return False
     key = (config.api_key or "").strip()
     secret = (config.secret_key or "").strip()
-    if (not key or key == "MOCK_KEY") and not DEFAULT_NEXT_SMS_API_KEY:
+    if key in ["MOCK_KEY", ""] and (secret in ["MOCK_SECRET", ""] or not DEFAULT_NEXT_SMS_API_KEY):
         return True
     return False
 
 
 def send_single_sms(dest_phone, message, config=None, mshiriki=None, ibada=None, sms_type='INVITATION'):
-    """
-    Hutuma SMS moja kwa kutumia Next SMS API (au Mock Mode kama credentials ni za majaribio).
-    Inaweka moja kwa moja header ya: MANZESE SDA, SINZA NA KIJITONYAMA
-    """
-    HEADER_PREFIX = "MANZESE SDA, SINZA NA KIJITONYAMA\n\n"
-    if message and not message.strip().startswith("MANZESE SDA"):
-        message = f"{HEADER_PREFIX}{message.strip()}"
     """
     Hutuma SMS moja kwa kutumia Next SMS API (au Mock Mode kama credentials ni za majaribio).
     Inasaidia V1 na V2 za Next SMS na inahifadhi taarifa zote kwenye SMSLog.
@@ -465,8 +457,8 @@ def check_nextsms_balance(config=None):
     }
 
 
-DEFAULT_NEXT_SMS_API_KEY = os.getenv('NEXTSMS_API_KEY', 'd94dc48d2a2d80f7137365afdbce6d90').strip() or 'd94dc48d2a2d80f7137365afdbce6d90'
-DEFAULT_NEXT_SMS_SECRET = os.getenv('NEXTSMS_SECRET', 'felicianjoseph575@gmail.com').strip() or 'felicianjoseph575@gmail.com'
+DEFAULT_NEXT_SMS_API_KEY = os.getenv('NEXTSMS_API_KEY', '').strip()
+DEFAULT_NEXT_SMS_SECRET = os.getenv('NEXTSMS_SECRET', '').strip()
 DEFAULT_SENDER_ID = os.getenv('NEXTSMS_SENDER_ID', 'IBADA SIFA').strip() or 'IBADA SIFA'
 DEFAULT_PASSCODE = os.getenv('LEADER_PASSCODE', '2010').strip() or '2010'
 
@@ -481,7 +473,7 @@ def get_active_config():
             leader_passcode=DEFAULT_PASSCODE,
             is_active=True
         )
-    elif not config.api_key or config.api_key in ['MOCK_KEY', ''] or not config.secret_key or config.secret_key in ['MOCK_SECRET', '']:
+    elif not config.api_key or not config.secret_key:
         config.api_key = DEFAULT_NEXT_SMS_API_KEY
         config.secret_key = DEFAULT_NEXT_SMS_SECRET
         config.sender_id = DEFAULT_SENDER_ID
@@ -492,32 +484,49 @@ def get_active_config():
     return config
 
 
-def format_ibada_time(ibada):
-    """Panga tarehe na muda wa ibada katika muundo sahihi na fasaha wa Kiswahili."""
+def format_ibada_time_short(ibada):
+    """Panga tarehe na muda wa ibada kwa ufupi ili kulinda herufi za SMS."""
     local_time = timezone.localtime(ibada.tarehe_muda)
-    days_sw = {
-        0: 'Jumatatu',
-        1: 'Jumanne',
-        2: 'Jumatano',
-        3: 'Alhamisi',
-        4: 'Ijumaa',
-        5: 'Jumamosi (Sabato)',
-        6: 'Jumapili'
+    days_short = {
+        0: 'Jtatu',
+        1: 'Jnne',
+        2: 'Jtano',
+        3: 'Alh',
+        4: 'Iju',
+        5: 'Jmosi',
+        6: 'Jpili'
     }
-    siku = days_sw.get(local_time.weekday(), local_time.strftime('%A'))
-    formatted_date = local_time.strftime("%d/%m/%Y")
-    formatted_time = local_time.strftime("%I:%M %p")
-    return f"{siku}, tarehe {formatted_date} saa {formatted_time}"
+    siku = days_short.get(local_time.weekday(), 'Jpili')
+    
+    hour = local_time.hour
+    minute = local_time.strftime("%M")
+    
+    # Swahili hour conversion
+    sw_hour = (hour + 6) % 12
+    if sw_hour == 0:
+        sw_hour = 12
+        
+    if 4 <= hour < 12:
+        period = "Asubuhi"
+    elif 12 <= hour < 16:
+        period = "Mchana"
+    elif 16 <= hour < 19:
+        period = "Jioni"
+    else:
+        period = "Usiku"
+        
+    return f"kesho {siku} saa {sw_hour}:{minute} {period}"
+
+
+def format_ibada_time(ibada):
+    """Panga tarehe na muda wa ibada katika muundo kamili wa Kiswahili."""
+    return format_ibada_time_short(ibada)
 
 
 def send_bulk_ibada_sms(ibada):
     """
-    Hutuma SMS za mwaliko kwa washiriki wote zikiwa zimetenganisha wazi:
-    - Mwenyeji
-    - Siku na Muda
-    - Somo (kama lipo)
-    - Maelekezo ya Mahali (kama yapo)
-    - Kiungo cha Google Maps (kama kipo)
+    Hutuma SMS za mwaliko kwa washiriki wote zikiwa fupi na salama (SMS 1 = Tsh 16).
+    Inatumia jina la kwanza tu la mshiriki na kugawa herufi kwa ufanisi.
     """
     config = get_active_config()
     use_mockup = is_mock_mode(config)
@@ -528,37 +537,31 @@ def send_bulk_ibada_sms(ibada):
 
     success_count = 0
     fail_count = 0
-    time_str = format_ibada_time(ibada)
-
-    # Kusanya vipengele vyote vya taarifa
-    details_lines = [
-        f"- Mwenyeji: Familia ya {ibada.mwenyeji.strip()}",
-        f"- Muda: {time_str}"
-    ]
-
-    somo_text = getattr(ibada, 'masomo', '') or getattr(ibada, 'somo', '')
-    if somo_text and somo_text.strip():
-        details_lines.append(f"- Somo: {somo_text.strip()}")
-
-    if ibada.maelekezo and ibada.maelekezo.strip():
-        details_lines.append(f"- Mahali: {ibada.maelekezo.strip()}")
-
-    if ibada.ramani_link and ibada.ramani_link.strip():
-        details_lines.append(f"- Ramani: {ibada.ramani_link.strip()}")
-
-    leader_phone = os.getenv('LEADER_PHONE', '0628549424').strip()
-    if leader_phone:
-        details_lines.append(f"- Mawasiliano ya Kiongozi: {leader_phone}")
-
-    details_block = "\n".join(details_lines)
+    time_str = format_ibada_time_short(ibada)
+    mwenyeji = (ibada.mwenyeji or "").strip()
+    ramani_link = (ibada.ramani_link or "").strip()
+    maelekezo = (ibada.maelekezo or "").strip()
 
     for member in active_members:
-        message = (
-            f"MANZESE SDA, SINZA NA KIJITONYAMA\n\n"
-            f"Habari {member.jina.strip()}, tunakukaribisha kwenye Ibada ya Kanda ya 'Anza na Bwana' wiki hii:\n\n"
-            f"{details_block}\n\n"
-            f"Karibu sana tubarikiwe pamoja!"
-        )
+        # Chukua jina la kwanza pekee ili kuokoa herufi
+        raw_name = (member.jina or "").strip()
+        first_name = raw_name.split()[0].capitalize() if raw_name else "Mpendwa"
+
+        if ramani_link:
+            message = (
+                f"SINZA & KIJITONYAMA: {first_name}, karibu Ibada ya Anza na Bwana "
+                f"{time_str} kwa {mwenyeji}. Ramani: {ramani_link} . Karibu!"
+            )
+        elif maelekezo:
+            message = (
+                f"SINZA & KIJITONYAMA: Habari {first_name}, karibu Ibada ya Anza na Bwana "
+                f"{time_str} kwa {mwenyeji} ({maelekezo}). Karibu sana!"
+            )
+        else:
+            message = (
+                f"MANZESE SDA (SINZA & KIJITONYAMA): Habari {first_name}, karibu "
+                f"Ibada ya Anza na Bwana {time_str} kwa {mwenyeji}. Karibu sana!"
+            )
 
         is_sent = send_single_sms(member.simu, message, config, mshiriki=member, ibada=ibada, sms_type='INVITATION')
         if is_sent:
@@ -571,8 +574,7 @@ def send_bulk_ibada_sms(ibada):
 
 def send_rsvp_reminder_sms(ibada, members):
     """
-    Sends a short reminder SMS to members who have NOT submitted RSVP yet.
-    Returns (success_count, fail_count, use_mockup).
+    Sends a short reminder SMS to members who have NOT submitted RSVP yet (Strictly 1 SMS).
     """
     config = get_active_config()
     use_mockup = is_mock_mode(config)
@@ -582,13 +584,15 @@ def send_rsvp_reminder_sms(ibada, members):
 
     success_count = 0
     fail_count = 0
-    time_str = format_ibada_time(ibada)
+    time_str = format_ibada_time_short(ibada)
+    mwenyeji = (ibada.mwenyeji or "").strip()
 
     for member in members:
+        raw_name = (member.jina or "").strip()
+        first_name = raw_name.split()[0].capitalize() if raw_name else "Mpendwa"
         message = (
-            f"Habari {member.jina}, bado hatujapokea uthibitisho wako wa ibada ya Kanda ya "
-            f"Sinza & Kijitonyama kwa familia ya {ibada.mwenyeji} ({time_str}). "
-            f"Tafadhali thibitisha kwa kufungua: http://127.0.0.1:8000/ - Karibu sana!"
+            f"SINZA & KIJITONYAMA: Habari {first_name}, tafadhali thibitisha mahudhurio ya Ibada "
+            f"{time_str} kwa {mwenyeji}. Karibu sana tubarikiwe!"
         )
         is_sent = send_single_sms(member.simu, message, config, mshiriki=member, ibada=ibada, sms_type='REMINDER')
         if is_sent:
@@ -599,25 +603,29 @@ def send_rsvp_reminder_sms(ibada, members):
     return success_count, fail_count, use_mockup
 
 
-def send_attendance_sms(ibada, present_members, absent_members, send_to_present=True, send_to_absent=True):
+def send_attendance_sms(ibada, present_members, absent_members, send_to_present=True, send_to_absent=True, custom_present_msg=None, custom_absent_msg=None):
     """
-    Sends customized thank you / encouraging SMS to members depending on whether they attended the session.
-    Returns (success_count, fail_count, use_mockup).
+    Sends customized thank you / encouraging SMS to members depending on whether they attended (Strictly 1 SMS each).
     """
     config = get_active_config()
     use_mockup = is_mock_mode(config)
 
     success_count = 0
     fail_count = 0
+    mwenyeji = (ibada.mwenyeji or "").strip()
 
     # 1. Send SMS to present members (Thank You SMS)
     if send_to_present:
         for member in present_members:
-            message = (
-                f"MANZESE SDA, SINZA NA KIJITONYAMA\n\n"
-                f"Habari {member.jina.strip()}, asante sana kwa kushiriki Ibada ya 'Anza na Bwana' leo kwa familia ya {ibada.mwenyeji.strip()}.\n\n"
-                f"Uwepo wako ulikuwa baraka kubwa kwetu sote. Mungu akubariki na kukuinua katika juma hili!"
-            )
+            raw_name = (member.jina or "").strip()
+            first_name = raw_name.split()[0].capitalize() if raw_name else "Mpendwa"
+            if custom_present_msg and custom_present_msg.strip():
+                message = custom_present_msg.strip().replace("{jina}", first_name).replace("{mwenyeji}", mwenyeji)
+            else:
+                message = (
+                    f"MANZESE SDA: Habari {first_name}, asante kwa kushiriki Ibada ya Kanda leo "
+                    f"kwa {mwenyeji}. Uwepo wako ulikuwa baraka. Ubarikiwe sana!"
+                )
             is_sent = send_single_sms(member.simu, message, config, mshiriki=member, ibada=ibada, sms_type='THANK_YOU')
             if is_sent:
                 success_count += 1
@@ -627,11 +635,15 @@ def send_attendance_sms(ibada, present_members, absent_members, send_to_present=
     # 2. Send SMS to absent members (Encouragement SMS)
     if send_to_absent:
         for member in absent_members:
-            message = (
-                f"MANZESE SDA, SINZA NA KIJITONYAMA\n\n"
-                f"Habari {member.jina.strip()}, tulikumiss sana kwenye Ibada ya 'Anza na Bwana' leo kwa familia ya {ibada.mwenyeji.strip()}.\n\n"
-                f"Tunakuombea heri na baraka za Mungu katika kila jambo lako. Karibu sana tujumuike pamoja katika ibada inayofuata ya 'Anza na Bwana'!"
-            )
+            raw_name = (member.jina or "").strip()
+            first_name = raw_name.split()[0].capitalize() if raw_name else "Mpendwa"
+            if custom_absent_msg and custom_absent_msg.strip():
+                message = custom_absent_msg.strip().replace("{jina}", first_name).replace("{mwenyeji}", mwenyeji)
+            else:
+                message = (
+                    f"MANZESE SDA: Habari {first_name}, tulikumiss sana kwenye Ibada ya Kanda leo "
+                    f"kwa {mwenyeji}. Ubarikiwe na uwe na juma njema. Karibu ibada ijayo!"
+                )
             is_sent = send_single_sms(member.simu, message, config, mshiriki=member, ibada=ibada, sms_type='ENCOURAGEMENT')
             if is_sent:
                 success_count += 1
@@ -640,10 +652,10 @@ def send_attendance_sms(ibada, present_members, absent_members, send_to_present=
 
     return success_count, fail_count, use_mockup
 
+
 def send_custom_broadcast_sms(custom_message, recipient_type='ALL', specific_member_id=None):
     """
-    Hutuma ujumbe maalum (kama salamu za Sabato, tangazo, taarifa) kwa washiriki.
-    Inabadilisha {jina} kuwa jina halisi la kila mshiriki.
+    Hutuma ujumbe maalum kwa washiriki ukibadilisha {jina} na jina la kwanza.
     """
     config = get_active_config()
     use_mockup = is_mock_mode(config)
@@ -658,19 +670,13 @@ def send_custom_broadcast_sms(custom_message, recipient_type='ALL', specific_mem
 
     success_count = 0
     fail_count = 0
-    HEADER_PREFIX = "MANZESE SDA, SINZA NA KIJITONYAMA\n\n"
 
     for member in target_members:
-        # Badilisha {jina} na jina halisi la mshiriki
-        msg_body = custom_message.replace("{jina}", member.jina.strip())
-        
-        # Hakikisha header rasmi ipo
-        if not msg_body.strip().startswith("MANZESE SDA"):
-            full_msg = f"{HEADER_PREFIX}{msg_body.strip()}"
-        else:
-            full_msg = msg_body.strip()
+        raw_name = (member.jina or "").strip()
+        first_name = raw_name.split()[0].capitalize() if raw_name else "Mpendwa"
+        msg_body = custom_message.replace("{jina}", first_name).strip()
 
-        is_sent = send_single_sms(member.simu, full_msg, config, mshiriki=member, ibada=None, sms_type='CUSTOM')
+        is_sent = send_single_sms(member.simu, msg_body, config, mshiriki=member, ibada=None, sms_type='CUSTOM')
         if is_sent:
             success_count += 1
         else:

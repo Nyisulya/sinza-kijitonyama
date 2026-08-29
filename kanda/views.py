@@ -133,13 +133,22 @@ def trigger_sms(request, ibada_id):
         
         if fail_count == 0 and success_count > 0:
             if use_mockup:
-                messages.success(request, f"Njia ya Majaribio (Mockup Mode): SMS {success_count} za mwaliko zimetengenezwa na kuhifadhiwa kwenye kumbukumbu za mfumo (Logs) kwa sababu API key haijawekwa.")
+                messages.success(request, f"Njia ya Majaribio (Mock Mode): SMS {success_count} za mwaliko zimetengenezwa na kuhifadhiwa kwenye kumbukumbu (SMS Logs).")
             else:
-                messages.success(request, f"SMS {success_count} za mwaliko zimetumwa kikamilifu kupitia SMS gateway!")
-        elif success_count > 0:
-            messages.warning(request, f"SMS {success_count} zilitumwa lakini {fail_count} zimeshindwa kutumwa. Tafadhali angalia mazingira ya SMS.")
+                messages.success(request, f"✅ Hongera! SMS {success_count} za mwaliko zimetumwa kikamilifu kupitia Next SMS Gateway!")
+        elif success_count > 0 and fail_count > 0:
+            messages.warning(request, f"SMS {success_count} zilitumwa lakini {fail_count} zimeshindwa (Salio limeisha katikati). Angalia SMS Logs.")
+        elif fail_count > 0:
+            # Pata hitilafu ya mwisho iliyorekodiwa kwenye SMSLog
+            last_failed_log = SMSLog.objects.filter(ibada=ibada, status='FAILED').order_by('-created_at').first()
+            err_reason = f" ({last_failed_log.error})" if last_failed_log and last_failed_log.error else ""
+            messages.error(
+                request, 
+                f"❌ SMS {fail_count} zimeshindwa kutumwa{err_reason}. "
+                f"Sababu: Akaunti yako ya Next SMS haina salio la kutosha (Inahitaji kuongezwa salio) au angalia SMS Logs."
+            )
         else:
-            messages.error(request, "SMS hazikutumwa kabisa. Hakuna washiriki waliosajiliwa au mazingira ya SMS yamezima.")
+            messages.info(request, "Hakuna washiriki walio active kwenye mfumo wa kuwatumia SMS.")
 
     return redirect('leader_dashboard')
 
@@ -225,6 +234,8 @@ def save_attendance(request, ibada_id):
             # Check SMS options
             send_to_present = request.POST.get('send_to_present') == 'on'
             send_to_absent = request.POST.get('send_to_absent') == 'on'
+            custom_present_msg = request.POST.get('custom_present_msg', '').strip()
+            custom_absent_msg = request.POST.get('custom_absent_msg', '').strip()
 
             # If neither checkbox was present in form (fallback), send to both
             if 'submitted_via_form' in request.POST and not send_to_present and not send_to_absent:
@@ -238,7 +249,9 @@ def save_attendance(request, ibada_id):
                 success_count, fail_count, use_mockup = send_attendance_sms(
                     ibada, present_members, absent_members,
                     send_to_present=send_to_present,
-                    send_to_absent=send_to_absent
+                    send_to_absent=send_to_absent,
+                    custom_present_msg=custom_present_msg,
+                    custom_absent_msg=custom_absent_msg
                 )
                 
                 status_type = "Mockup Mode (Logs)" if use_mockup else "Next SMS Gateway"

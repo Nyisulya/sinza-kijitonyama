@@ -195,33 +195,64 @@
 
         <input type="hidden" name="submitted_via_form" value="1">
 
-        <!-- Automatic SMS Options Box -->
-        <div class="card" style="margin-bottom: 20px; padding: 18px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-md);">
-            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-                <strong style="font-size: 15px; color: var(--primary);">Utumaji wa SMS Kiotomatiki (Next SMS)</strong>
+        <!-- Automatic SMS Options & Editable Templates Box -->
+        <div class="card" style="margin-bottom: 20px; padding: 20px; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: var(--radius-md); box-shadow: var(--shadow-sm);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                    <strong style="font-size: 16px; color: var(--primary);">Ujumbe wa SMS Utakaotumwa Kiotomatiki (Next SMS)</strong>
+                </div>
+                <span style="font-size: 12px; font-weight: 700; background: #ecfdf5; color: #047857; padding: 3px 10px; border-radius: 999px; border: 1px solid #a7f3d0;">
+                    🛡️ SMS 1 (Tsh 16 tu)
+                </span>
             </div>
             
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
-                Ukibofya hifadhi, mfumo utatuma SMS mara moja bila wewe kuingia Next SMS:
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">
+                Kagua au rekebisha maneno ya ujumbe hapa chini kabla ya kuhifadhi. Mfumo unahakikisha herufi hazizidi 160 ili kila mtu akatwe SMS 1 (Tsh 16) tu:
             </p>
 
-            <div style="display: flex; flex-direction: column; gap: 10px;">
-                <label style="display: flex; align-items: center; gap: 10px; font-size: 14px; cursor: pointer; color: var(--text-main); font-weight: 500;">
-                    <input type="checkbox" name="send_to_present" checked style="width: 18px; height: 18px; accent-color: var(--primary);">
-                    <span>✅ Tuma SMS ya Shukrani kwa <strong>waliohudhuria</strong></span>
-                </label>
+            <!-- 1. Present Members Message Box -->
+            <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; color: var(--text-main); font-weight: 700;">
+                        <input type="checkbox" name="send_to_present" id="send_to_present" checked style="width: 18px; height: 18px; accent-color: var(--primary);">
+                        <span>✅ 1. SMS ya Shukrani kwa <strong>Waliohudhuria</strong></span>
+                    </label>
+                    <span id="presentCharBadge" style="font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 6px; background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0;">
+                        125 / 160 (SMS 1)
+                    </span>
+                </div>
                 
-                <label style="display: flex; align-items: center; gap: 10px; font-size: 14px; cursor: pointer; color: var(--text-main); font-weight: 500;">
-                    <input type="checkbox" name="send_to_absent" checked style="width: 18px; height: 18px; accent-color: var(--primary);">
-                    <span>💌 Tuma SMS ya Faraja kwa <strong>wasiofika</strong></span>
-                </label>
+                <textarea name="custom_present_msg" id="custom_present_msg" rows="2" class="form-control" style="font-size: 13px; font-family: monospace; resize: vertical; line-height: 1.4;">MANZESE SDA: Habari {jina}, asante kwa kushiriki Ibada ya Kanda leo kwa {{ ibada.mwenyeji }}. Uwepo wako ulikuwa baraka. Ubarikiwe sana!</textarea>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+                    <small style="color: var(--text-muted); font-size: 11px;">💡 Mfumo utabadilisha <code>{jina}</code> kuwa jina la kwanza la mshiriki.</small>
+                    <small id="presentCostText" style="color: #047857; font-size: 11px; font-weight: 700;">Gharama: Tsh 16 kwa mtu</small>
+                </div>
+            </div>
+
+            <!-- 2. Absent Members Message Box -->
+            <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 10px; padding: 14px; margin-bottom: 6px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; color: var(--text-main); font-weight: 700;">
+                        <input type="checkbox" name="send_to_absent" id="send_to_absent" checked style="width: 18px; height: 18px; accent-color: var(--primary);">
+                        <span>💌 2. SMS ya Faraja kwa <strong>Wasiohudhuria (Wasiofika)</strong></span>
+                    </label>
+                    <span id="absentCharBadge" style="font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 6px; background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0;">
+                        138 / 160 (SMS 1)
+                    </span>
+                </div>
+                
+                <textarea name="custom_absent_msg" id="custom_absent_msg" rows="2" class="form-control" style="font-size: 13px; font-family: monospace; resize: vertical; line-height: 1.4;">MANZESE SDA: Habari {jina}, tulikumiss sana kwenye Ibada ya Kanda leo kwa {{ ibada.mwenyeji }}. Ubarikiwe na uwe na juma njema. Karibu ibada ijayo!</textarea>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+                    <small style="color: var(--text-muted); font-size: 11px;">💡 Mfumo utabadilisha <code>{jina}</code> kuwa jina la kwanza la mshiriki.</small>
+                    <small id="absentCostText" style="color: #047857; font-size: 11px; font-weight: 700;">Gharama: Tsh 16 kwa mtu</small>
+                </div>
             </div>
         </div>
 
         {% if washiriki %}
-            <button type="submit" id="btnSubmitRollCall" class="btn-primary btn-block" style="padding: 16px; font-size: 16px; font-weight: 700; background: linear-gradient(135deg, var(--secondary), var(--secondary-light));">
-                <span id="btnText">Hifadhi Mahudhurio & Tuma SMS Kiotomatiki</span>
+            <button type="submit" id="btnSubmitRollCall" class="btn-primary btn-block" style="padding: 16px; font-size: 16px; font-weight: 700; background: linear-gradient(135deg, var(--secondary), var(--secondary-light)); box-shadow: 0 4px 14px rgba(22, 101, 52, 0.3);">
+                <span id="btnText">💾 Hifadhi Mahudhurio & Tuma SMS Kiotomatiki</span>
             </button>
         {% endif %}
         
@@ -292,6 +323,48 @@
             }
             form.submit();
         });
+    }
+
+    // Live Character Counter & Cost Indicator for Attendance SMS Templates
+    const presentMsgInput = document.getElementById('custom_present_msg');
+    const absentMsgInput = document.getElementById('custom_absent_msg');
+    const presentCharBadge = document.getElementById('presentCharBadge');
+    const absentCharBadge = document.getElementById('absentCharBadge');
+    const presentCostText = document.getElementById('presentCostText');
+    const absentCostText = document.getElementById('absentCostText');
+
+    function updateMsgCounter(input, badge, costText) {
+        if (!input || !badge) return;
+        // Estimate with sample name length (approx 8 chars for {jina})
+        const sampleText = input.value.replace('{jina}', 'Baraka');
+        const len = sampleText.length;
+        
+        if (len <= 160) {
+            badge.innerText = `${len} / 160 (SMS 1)`;
+            badge.style.background = '#ecfdf5';
+            badge.style.color = '#047857';
+            badge.style.borderColor = '#a7f3d0';
+            if (costText) costText.innerText = 'Gharama: Tsh 16 kwa mtu (Salama)';
+            if (costText) costText.style.color = '#047857';
+        } else {
+            const parts = Math.ceil(len / 153);
+            badge.innerText = `⚠️ ${len} / 160 (SMS ${parts})`;
+            badge.style.background = '#fef2f2';
+            badge.style.color = '#dc2626';
+            badge.style.borderColor = '#fecaca';
+            if (costText) costText.innerText = `⚠️ Zimezidi! Itakuwa SMS ${parts} (Tsh ${parts * 16} kwa mtu)`;
+            if (costText) costText.style.color = '#dc2626';
+        }
+    }
+
+    if (presentMsgInput) {
+        presentMsgInput.addEventListener('input', () => updateMsgCounter(presentMsgInput, presentCharBadge, presentCostText));
+        updateMsgCounter(presentMsgInput, presentCharBadge, presentCostText);
+    }
+
+    if (absentMsgInput) {
+        absentMsgInput.addEventListener('input', () => updateMsgCounter(absentMsgInput, absentCharBadge, absentCostText));
+        updateMsgCounter(absentMsgInput, absentCharBadge, absentCostText);
     }
 </script>
 {% endblock %}

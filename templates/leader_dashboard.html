@@ -154,46 +154,220 @@
         </div>
     </div>
 
-    <!-- Right Column: Create New Ibada Form -->
+    <!-- Right Column: Create New Ibada Form with Smart SMS Budgeting & Live Preview -->
     <div>
-        <div class="card" id="new-ibada-section" style="border-top: 4px solid var(--primary);">
-            <h2 class="card-title">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                Sajili Ibada Mpya ya Kanda
-            </h2>
-            <form action="{% url 'create_ibada' %}" method="post">
+        <div class="card" id="new-ibada-section" style="border-top: 4px solid var(--primary); box-shadow: var(--shadow-md);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h2 class="card-title" style="margin: 0;">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    Sajili Ibada Mpya ya Kanda
+                </h2>
+                <span style="font-size: 12px; font-weight: 700; background: #ecfdf5; color: #047857; padding: 4px 10px; border-radius: 999px; border: 1px solid #a7f3d0;">
+                    🛡️ Mfumo wa SMS 1 (Tsh 16)
+                </span>
+            </div>
+
+            <form action="{% url 'create_ibada' %}" method="post" id="ibadaForm">
                 {% csrf_token %}
-                <div class="form-group">
-                    <label for="mwenyeji" class="form-label">Familia Mwenyeji (Host) *</label>
-                    <input type="text" name="mwenyeji" id="mwenyeji" class="form-control" placeholder="Mfano: Mzee Joshua au Kijitonyama" required>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                        <label for="mwenyeji" class="form-label" style="margin: 0; font-weight: 700;">Familia Mwenyeji (Host) *</label>
+                        <span id="mwenyejiBadge" style="font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 6px; background: var(--bg-body); color: var(--text-muted); border: 1px solid var(--border);">
+                            0/20
+                        </span>
+                    </div>
+                    <input type="text" name="mwenyeji" id="mwenyeji" maxlength="25" class="form-control" placeholder="Mfano: Mama Gityamwi au Mzee Makala" required style="font-weight: 600;">
+                    <small style="color: var(--text-muted); font-size: 12px; margin-top: 3px; display: block;">
+                        💡 Ukiandika jina fupi (mfano herufi 10), herufi 10 zilizobaki zitahamishiwa kwenye sehemu ya Mahali!
+                    </small>
                 </div>
                 
-                <div class="form-group">
-                    <label for="tarehe_muda" class="form-label">Tarehe na Muda wa Ibada *</label>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="tarehe_muda" class="form-label" style="font-weight: 700;">Tarehe na Muda wa Ibada *</label>
                     <input type="datetime-local" name="tarehe_muda" id="tarehe_muda" class="form-control" required>
                 </div>
 
-                <div class="form-group">
-                    <label for="somo" class="form-label">Somo / Mada ya Kujadili (Hiari)</label>
-                    <input type="text" name="somo" id="somo" class="form-control" placeholder="Mfano: Somo la 5 la Mwongozo wa Sabato">
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="somo" class="form-label" style="font-weight: 700;">Somo / Mada ya Kujadili <span style="font-size: 12px; color: var(--text-muted); font-weight: normal;">(Hiari - Huhifadhiwa kwenye mfumo)</span></label>
+                    <input type="text" name="somo" id="somo" class="form-control" placeholder="Mfano: Somo la 5 la Mwongozo">
                 </div>
 
-                <div class="form-group">
-                    <label for="maelekezo" class="form-label">Maelekezo ya Kufika (Mahali) *</label>
-                    <textarea name="maelekezo" id="maelekezo" rows="2" class="form-control" placeholder="Mfano: Karibu na Kanisa la Lutheran, nyumba ya ghorofa ya pili..." required></textarea>
+                <!-- Eneo: Either Maelekezo OR Ramani with Smart Lock & Dynamic Character Budget -->
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; margin-bottom: 18px;">
+                    <div style="font-size: 13px; font-weight: 800; color: var(--primary); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+                        <span>📍 ENEO LA IBADA (Chagua kimoja: Mahali AU Ramani)</span>
+                    </div>
+
+                    <!-- Option A: Maelekezo ya Mahali -->
+                    <div class="form-group" style="margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <label for="maelekezo" class="form-label" style="margin: 0; font-size: 13px; font-weight: 700;">A. Maelekezo ya Mahali (Karibu na wapi):</label>
+                            <span id="maelekezoBadge" style="font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 6px; background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd;">
+                                0/20
+                            </span>
+                        </div>
+                        <input type="text" name="maelekezo" id="maelekezo" maxlength="20" class="form-control" placeholder="Mfano: Sinza Mori karibu Meeda">
+                        <small id="maelekezoLockMsg" style="color: #d97706; font-size: 11px; font-weight: 600; margin-top: 3px; display: block;"></small>
+                    </div>
+
+                    <div style="text-align: center; font-size: 12px; font-weight: 800; color: var(--text-muted); margin: 6px 0;">— AU —</div>
+
+                    <!-- Option B: Google Maps Link -->
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <label for="ramani_link" class="form-label" style="margin: 0; font-size: 13px; font-weight: 700;">B. Kiungo cha Ramani (Google Maps Link):</label>
+                            <span id="ramaniBadge" style="font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 6px; background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd;">
+                                0/30
+                            </span>
+                        </div>
+                        <input type="url" name="ramani_link" id="ramani_link" maxlength="30" class="form-control" placeholder="Mfano: https://maps.app.goo.gl/xyz">
+                        <small id="ramaniLockMsg" style="color: #d97706; font-size: 11px; font-weight: 600; margin-top: 3px; display: block;"></small>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="ramani_link" class="form-label">Kiungo cha Ramani (Google Maps Link)</label>
-                    <input type="url" name="ramani_link" id="ramani_link" class="form-control" placeholder="Mfano: https://maps.app.goo.gl/...">
+                <!-- Live SMS Preview & Safety Box -->
+                <div style="background: #f0fdf4; border: 1.5px dashed #86efac; border-radius: 12px; padding: 14px; margin-bottom: 18px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-size: 13px; font-weight: 800; color: #166534; display: inline-flex; align-items: center; gap: 5px;">
+                            📱 Mfano wa SMS itakayotumwa:
+                        </span>
+                        <span id="smsPartBadge" style="font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 999px; background: #16a34a; color: #ffffff;">
+                            SMS 1 (Tsh 16)
+                        </span>
+                    </div>
+
+                    <div id="smsPreviewBox" style="background: #ffffff; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px; font-size: 13px; color: #1f2937; line-height: 1.5; font-family: monospace; word-break: break-word; min-height: 54px;">
+                        SINZA & KIJITONYAMA: Habari Baraka, karibu Ibada ya Anza na Bwana kesho Jpili 12:30 Asubuhi kwa Mama Gityamwi. Karibu sana tubarikiwe!
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font-size: 12px;">
+                        <span id="charCountDisplay" style="font-weight: 700; color: #15803d;">
+                            📊 Jumla ya Herufi: 142 / 160
+                        </span>
+                        <span id="costDisplay" style="font-weight: 700; color: #047857;">
+                            💰 Tsh {{ washiriki_count|default:76 }} × 16 = Tsh {% widthratio washiriki_count|default:76 1 16 %}
+                        </span>
+                    </div>
                 </div>
 
-                <button type="submit" class="btn-primary btn-block" style="padding: 12px; font-weight: 700; background: linear-gradient(135deg, var(--primary), var(--primary-light));">
-                    Sajili Ibada Sasa
+                <button type="submit" class="btn-primary btn-block" style="padding: 14px; font-size: 15px; font-weight: 800; background: linear-gradient(135deg, var(--primary), var(--primary-light)); box-shadow: 0 4px 12px rgba(16, 85, 154, 0.25);">
+                    💾 Sajili Ibada Sasa
                 </button>
             </form>
         </div>
     </div>
 
 </div>
+
+<!-- Smart Character Budgeting & Live Preview Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const mwenyejiInput = document.getElementById('mwenyeji');
+    const maelekezoInput = document.getElementById('maelekezo');
+    const ramaniInput = document.getElementById('ramani_link');
+    const tareheMudaInput = document.getElementById('tarehe_muda');
+
+    const mwenyejiBadge = document.getElementById('mwenyejiBadge');
+    const maelekezoBadge = document.getElementById('maelekezoBadge');
+    const ramaniBadge = document.getElementById('ramaniBadge');
+
+    const maelekezoLockMsg = document.getElementById('maelekezoLockMsg');
+    const ramaniLockMsg = document.getElementById('ramaniLockMsg');
+
+    const smsPreviewBox = document.getElementById('smsPreviewBox');
+    const smsPartBadge = document.getElementById('smsPartBadge');
+    const charCountDisplay = document.getElementById('charCountDisplay');
+
+    // Base limits
+    const MWENYEJI_BASE = 20;
+    const MAELEKEZO_BASE = 20;
+    const RAMANI_BASE = 30;
+
+    function updateSmartBudgetAndPreview() {
+        const mwenyejiVal = (mwenyejiInput.value || '').trim();
+        const mwenyejiLen = mwenyejiInput.value.length;
+
+        // 1. Calculate dynamic extra budget from mwenyeji
+        const extraBudget = Math.max(0, MWENYEJI_BASE - mwenyejiLen);
+        const dynamicMaelekezoMax = MAELEKEZO_BASE + extraBudget;
+        const dynamicRamaniMax = RAMANI_BASE + extraBudget;
+
+        // Set dynamic maxlength
+        maelekezoInput.maxLength = dynamicMaelekezoMax;
+        ramaniInput.maxLength = dynamicRamaniMax;
+
+        // Update badges
+        mwenyejiBadge.innerText = `${mwenyejiLen}/${MWENYEJI_BASE}`;
+        mwenyejiBadge.style.color = mwenyejiLen > MWENYEJI_BASE ? '#dc2626' : '#475569';
+
+        maelekezoBadge.innerText = `${maelekezoInput.value.length}/${dynamicMaelekezoMax}`;
+        ramaniBadge.innerText = `${ramaniInput.value.length}/${dynamicRamaniMax}`;
+
+        // 2. Mutual Lock Logic
+        const hasMaelekezo = (maelekezoInput.value || '').trim().length > 0;
+        const hasRamani = (ramaniInput.value || '').trim().length > 0;
+
+        if (hasMaelekezo) {
+            ramaniInput.disabled = true;
+            ramaniInput.style.background = '#f1f5f9';
+            ramaniInput.style.cursor = 'not-allowed';
+            ramaniLockMsg.innerText = '🔒 Imezimwa kwa sababu umejaza maelekezo ya mahali.';
+        } else {
+            ramaniInput.disabled = false;
+            ramaniInput.style.background = '#ffffff';
+            ramaniInput.style.cursor = 'text';
+            ramaniLockMsg.innerText = '';
+        }
+
+        if (hasRamani) {
+            maelekezoInput.disabled = true;
+            maelekezoInput.style.background = '#f1f5f9';
+            maelekezoInput.style.cursor = 'not-allowed';
+            maelekezoLockMsg.innerText = '🔒 Imezimwa kwa sababu umeweka kiungo cha ramani.';
+        } else {
+            maelekezoInput.disabled = false;
+            maelekezoInput.style.background = '#ffffff';
+            maelekezoInput.style.cursor = 'text';
+            maelekezoLockMsg.innerText = '';
+        }
+
+        // 3. Build Preview SMS
+        const hostName = mwenyejiVal || 'Mama Gityamwi';
+        let previewText = '';
+
+        if (hasRamani) {
+            previewText = `SINZA & KIJITONYAMA: Baraka, karibu Ibada ya Anza na Bwana kesho Jpili 12:30 Asubuhi kwa ${hostName}. Ramani: ${ramaniInput.value.trim()} . Karibu!`;
+        } else if (hasMaelekezo) {
+            previewText = `SINZA & KIJITONYAMA: Habari Baraka, karibu Ibada ya Anza na Bwana kesho Jpili 12:30 Asubuhi kwa ${hostName} (${maelekezoInput.value.trim()}). Karibu sana!`;
+        } else {
+            previewText = `MANZESE SDA (SINZA & KIJITONYAMA): Habari Baraka, karibu Ibada ya Anza na Bwana kesho Jpili 12:30 Asubuhi kwa ${hostName}. Karibu sana!`;
+        }
+
+        smsPreviewBox.innerText = previewText;
+        const totalChars = previewText.length;
+
+        // 4. Update Preview Stats
+        if (totalChars <= 160) {
+            const buffer = 160 - totalChars;
+            charCountDisplay.innerHTML = `📊 Jumla ya Herufi: <strong>${totalChars} / 160</strong> (Akiba salama: ${buffer} herufi)`;
+            charCountDisplay.style.color = '#15803d';
+            smsPartBadge.innerText = 'SMS 1 (Tsh 16)';
+            smsPartBadge.style.background = '#16a34a';
+        } else {
+            const parts = Math.ceil(totalChars / 153);
+            charCountDisplay.innerHTML = `⚠️ Jumla ya Herufi: <strong>${totalChars} / 160</strong> (Zimezidi!)`;
+            charCountDisplay.style.color = '#dc2626';
+            smsPartBadge.innerText = `SMS ${parts} (Tsh ${parts * 16})`;
+            smsPartBadge.style.background = '#dc2626';
+        }
+    }
+
+    mwenyejiInput.addEventListener('input', updateSmartBudgetAndPreview);
+    maelekezoInput.addEventListener('input', updateSmartBudgetAndPreview);
+    ramaniInput.addEventListener('input', updateSmartBudgetAndPreview);
+
+    // Run once on load
+    updateSmartBudgetAndPreview();
+});
+</script>
 {% endblock %}

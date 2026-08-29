@@ -54,6 +54,7 @@ class KandaViewsTestCase(TestCase):
         session = self.client.session
         session['is_leader'] = True
         session.save()
+        SMSConfig.objects.create(api_key="MOCK_KEY", secret_key="MOCK_SECRET", is_active=True)
         
         self.mshiriki = Mshiriki.objects.create(
             jina="John Joseph",
@@ -186,6 +187,8 @@ class NextSMSTestCase(TestCase):
         session = self.client.session
         session['is_leader'] = True
         session.save()
+        SMSConfig.objects.all().delete()
+        self.config = SMSConfig.objects.create(api_key="MOCK_KEY", secret_key="MOCK_SECRET", is_active=True)
 
     def test_phone_cleaner(self):
         from .sms_helper import clean_phone_number
@@ -207,13 +210,11 @@ class NextSMSTestCase(TestCase):
 
     def test_mock_send_test_sms(self):
         from .sms_helper import send_test_sms
-        config = SMSConfig.objects.create(api_key="MOCK_KEY", secret_key="MOCK_SECRET", is_active=True)
-        res = send_test_sms("0787661560", "Jaribio", config)
+        res = send_test_sms("0787661560", "Jaribio", self.config)
         self.assertTrue(res["success"])
         self.assertEqual(res["mode"], "MOCK")
 
     def test_sms_settings_test_action(self):
-        config = SMSConfig.objects.create(api_key="MOCK_KEY", secret_key="MOCK_SECRET", is_active=True)
         response = self.client.post(reverse('sms_settings'), {
             'action': 'test_sms',
             'test_phone': '0787661560',
@@ -223,9 +224,42 @@ class NextSMSTestCase(TestCase):
         self.assertContains(response, "Ujumbe wa jaribio umerekodiwa kikamilifu")
 
     def test_sms_settings_check_balance(self):
-        config = SMSConfig.objects.create(api_key="MOCK_KEY", secret_key="MOCK_SECRET", is_active=True)
         response = self.client.post(reverse('sms_settings'), {
             'action': 'check_balance'
         })
         self.assertEqual(response.status_code, 200)
+
+    def test_single_sms_length_guarantee(self):
+        """Verify that all generated SMS messages are strictly <= 160 characters (1 SMS segment)."""
+        from .sms_helper import format_ibada_time_short
+        ibada = Ibada.objects.create(
+            mwenyeji="Mama Gityamwi",
+            tarehe_muda=timezone.now() + timezone.timedelta(days=1),
+            maelekezo="Sinza Mori karibu Meeda"
+        )
+        member = Mshiriki.objects.create(
+            jina="Bonaventura Makala",
+            simu="0712345678"
+        )
+        time_str = format_ibada_time_short(ibada)
+        first_name = member.jina.strip().split()[0].capitalize()
+
+        # 1. Invitation with Location
+        msg_location = f"SINZA & KIJITONYAMA: Habari {first_name}, karibu Ibada ya Anza na Bwana {time_str} kwa {ibada.mwenyeji} ({ibada.maelekezo}). Karibu sana!"
+        self.assertLessEqual(len(msg_location), 160)
+        self.assertEqual(first_name, "Bonaventura")
+
+        # 2. Invitation with Map link
+        ibada.ramani_link = "https://maps.app.goo.gl/xyz123"
+        msg_map = f"SINZA & KIJITONYAMA: {first_name}, karibu Ibada ya Anza na Bwana {time_str} kwa {ibada.mwenyeji}. Ramani: {ibada.ramani_link} . Karibu!"
+        self.assertLessEqual(len(msg_map), 160)
+
+        # 3. Thank You SMS
+        msg_thanks = f"MANZESE SDA: Habari {first_name}, asante kwa kushiriki Ibada ya Kanda leo kwa {ibada.mwenyeji}. Uwepo wako ulikuwa baraka. Ubarikiwe sana!"
+        self.assertLessEqual(len(msg_thanks), 160)
+
+        # 4. Absent SMS
+        msg_absent = f"MANZESE SDA: Habari {first_name}, tulikumiss sana kwenye Ibada ya Kanda leo kwa {ibada.mwenyeji}. Ubarikiwe na uwe na juma njema. Karibu ibada ijayo!"
+        self.assertLessEqual(len(msg_absent), 160)
+
 
