@@ -333,14 +333,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // 3. Build Preview SMS
         const hostName = mwenyejiVal || 'Mama Gityamwi';
+        const hostLower = hostName.toLowerCase();
+        let hostStr = `kwa ${hostName}`;
+        if (hostLower.includes('kanisa') || hostLower.includes('kanisani') || hostLower.includes('manzese sda')) {
+            hostStr = 'Kanisani Manzese SDA';
+        }
+
         let previewText = '';
 
         if (hasRamani) {
-            previewText = `MANZESE SDA\nHabari Baraka, karibu Ibada ya Anza na Bwana kesho 07/09 saa 12:30 Asb kwa ${hostName}. Ramani: ${ramaniInput.value.trim()}`;
+            previewText = `MANZESE SDA\nHabari Baraka, karibu Ibada ya Anza na Bwana kesho 07/09 saa 12:30 Asb ${hostStr}. Ramani: ${ramaniInput.value.trim()}`;
         } else if (hasMaelekezo) {
-            previewText = `MANZESE SDA\nHabari Baraka, karibu Ibada ya Anza na Bwana kesho 07/09 saa 12:30 Asb kwa ${hostName} (${maelekezoInput.value.trim()}).`;
+            previewText = `MANZESE SDA\nHabari Baraka, karibu Ibada ya Anza na Bwana kesho 07/09 saa 12:30 Asb ${hostStr} (${maelekezoInput.value.trim()}).`;
         } else {
-            previewText = `MANZESE SDA (SINZA & KIJITONYAMA)\nHabari Baraka, karibu Ibada ya Anza na Bwana kesho 07/09 saa 12:30 Asb kwa ${hostName}.`;
+            previewText = `MANZESE SDA (SINZA & KIJITONYAMA)\nHabari Baraka, karibu Ibada ya Anza na Bwana kesho 07/09 saa 12:30 Asb ${hostStr}.`;
         }
 
         smsPreviewBox.innerText = previewText;
