@@ -4,6 +4,7 @@ import json
 import base64
 import re
 import logging
+from datetime import timedelta
 from django.utils import timezone
 from .models import Mshiriki, SMSConfig, SMSLog
 
@@ -485,18 +486,9 @@ def get_active_config():
 
 
 def format_ibada_time_short(ibada):
-    """Panga tarehe na muda wa ibada kwa ufupi ili kulinda herufi za SMS."""
+    """Panga tarehe na muda wa ibada kwa ufupi na uwazi ili kulinda herufi za SMS (mfano: kesho 07/09 saa 12:30 Asb)."""
     local_time = timezone.localtime(ibada.tarehe_muda)
-    days_short = {
-        0: 'Jtatu',
-        1: 'Jnne',
-        2: 'Jtano',
-        3: 'Alh',
-        4: 'Iju',
-        5: 'Jmosi',
-        6: 'Jpili'
-    }
-    siku = days_short.get(local_time.weekday(), 'Jpili')
+    date_str = local_time.strftime("%d/%m")
     
     hour = local_time.hour
     minute = local_time.strftime("%M")
@@ -507,15 +499,24 @@ def format_ibada_time_short(ibada):
         sw_hour = 12
         
     if 4 <= hour < 12:
-        period = "Asubuhi"
+        period = "Asb"
     elif 12 <= hour < 16:
         period = "Mchana"
     elif 16 <= hour < 19:
         period = "Jioni"
     else:
         period = "Usiku"
+
+    today = timezone.localdate()
+    ibada_date = local_time.date()
+    if ibada_date == today:
+        prefix = "leo"
+    elif ibada_date == today + timedelta(days=1):
+        prefix = "kesho"
+    else:
+        prefix = "tarehe"
         
-    return f"kesho {siku} saa {sw_hour}:{minute} {period}"
+    return f"{prefix} {date_str} saa {sw_hour}:{minute} {period}"
 
 
 def format_ibada_time(ibada):
@@ -551,19 +552,29 @@ def send_bulk_ibada_sms(ibada):
             message = (
                 f"MANZESE SDA\n"
                 f"Habari {first_name}, karibu Ibada ya Anza na Bwana {time_str} "
-                f"kwa {mwenyeji}. Ramani: {ramani_link} . Karibu!"
+                f"kwa {mwenyeji}. Ramani: {ramani_link}"
             )
         elif maelekezo:
             message = (
                 f"MANZESE SDA\n"
                 f"Habari {first_name}, karibu Ibada ya Anza na Bwana {time_str} "
-                f"kwa {mwenyeji} ({maelekezo}). Karibu sana!"
+                f"kwa {mwenyeji} ({maelekezo})."
             )
         else:
             message = (
                 f"MANZESE SDA (SINZA & KIJITONYAMA)\n"
                 f"Habari {first_name}, karibu Ibada ya Anza na Bwana {time_str} "
-                f"kwa {mwenyeji}. Karibu sana!"
+                f"kwa {mwenyeji}."
+            )
+
+        # Ulinzi mkali (Safety Guard): Hakikisha ujumbe hauvuki herufi 160 kamwe (Strictly 1 SMS)
+        if len(message) > 160 and maelekezo:
+            excess = len(message) - 160
+            trimmed_maelekezo = maelekezo[:-excess].strip().rstrip('.,;')
+            message = (
+                f"MANZESE SDA\n"
+                f"Habari {first_name}, karibu Ibada ya Anza na Bwana {time_str} "
+                f"kwa {mwenyeji} ({trimmed_maelekezo})."
             )
 
         is_sent = send_single_sms(member.simu, message, config, mshiriki=member, ibada=ibada, sms_type='INVITATION')

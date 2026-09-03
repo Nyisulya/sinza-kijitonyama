@@ -244,14 +244,15 @@ class NextSMSTestCase(TestCase):
         time_str = format_ibada_time_short(ibada)
         first_name = member.jina.strip().split()[0].capitalize()
 
-        # 1. Invitation with Location
-        msg_location = f"MANZESE SDA\nHabari {first_name}, karibu Ibada ya Anza na Bwana {time_str} kwa {ibada.mwenyeji} ({ibada.maelekezo}). Karibu sana!"
+        # 1. Invitation with Location (Hadi herufi 50 za maelekezo)
+        ibada.maelekezo = "Sinza Makaburini, mtaa wa Ikangaa, nyumba no 17"
+        msg_location = f"MANZESE SDA\nHabari {first_name}, karibu Ibada ya Anza na Bwana {time_str} kwa {ibada.mwenyeji} ({ibada.maelekezo})."
         self.assertLessEqual(len(msg_location), 160)
         self.assertEqual(first_name, "Bonaventura")
 
         # 2. Invitation with Map link
         ibada.ramani_link = "https://maps.app.goo.gl/xyz123"
-        msg_map = f"MANZESE SDA\nHabari {first_name}, karibu Ibada ya Anza na Bwana {time_str} kwa {ibada.mwenyeji}. Ramani: {ibada.ramani_link} . Karibu!"
+        msg_map = f"MANZESE SDA\nHabari {first_name}, karibu Ibada ya Anza na Bwana {time_str} kwa {ibada.mwenyeji}. Ramani: {ibada.ramani_link}"
         self.assertLessEqual(len(msg_map), 160)
 
         # 3. Thank You SMS

@@ -203,10 +203,10 @@
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                             <label for="maelekezo" class="form-label" style="margin: 0; font-size: 13px; font-weight: 700;">A. Maelekezo ya Mahali (Karibu na wapi):</label>
                             <span id="maelekezoBadge" style="font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 6px; background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd;">
-                                0/20
+                                0/50
                             </span>
                         </div>
-                        <input type="text" name="maelekezo" id="maelekezo" maxlength="20" class="form-control" placeholder="Mfano: Sinza Mori karibu Meeda">
+                        <input type="text" name="maelekezo" id="maelekezo" maxlength="50" class="form-control" placeholder="Mfano: Sinza Makaburini, mtaa wa Ikangaa, nyumba no 17">
                         <small id="maelekezoLockMsg" style="color: #d97706; font-size: 11px; font-weight: 600; margin-top: 3px; display: block;"></small>
                     </div>
 
@@ -237,7 +237,7 @@
                     </div>
 
                     <div id="smsPreviewBox" style="background: #ffffff; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px; font-size: 13px; color: #1f2937; line-height: 1.5; font-family: monospace; word-break: break-word; min-height: 54px;">
-                        SINZA & KIJITONYAMA: Habari Baraka, karibu Ibada ya Anza na Bwana kesho Jpili 12:30 Asubuhi kwa Mama Gityamwi. Karibu sana tubarikiwe!
+                        MANZESE SDA (SINZA & KIJITONYAMA): Habari Baraka, karibu Ibada ya Anza na Bwana kesho 07/09 saa 12:30 Asb kwa Mama Gityamwi.
                     </div>
 
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font-size: 12px;">
@@ -280,7 +280,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Base limits
     const MWENYEJI_BASE = 20;
-    const MAELEKEZO_BASE = 20;
+    const MAELEKEZO_BASE = 50;
     const RAMANI_BASE = 30;
 
     function updateSmartBudgetAndPreview() {
@@ -336,11 +336,11 @@ document.addEventListener('DOMContentLoaded', function() {
         let previewText = '';
 
         if (hasRamani) {
-            previewText = `MANZESE SDA\nHabari Baraka, karibu Ibada ya Anza na Bwana kesho Jpili 12:30 Asubuhi kwa ${hostName}. Ramani: ${ramaniInput.value.trim()} . Karibu!`;
+            previewText = `MANZESE SDA\nHabari Baraka, karibu Ibada ya Anza na Bwana kesho 07/09 saa 12:30 Asb kwa ${hostName}. Ramani: ${ramaniInput.value.trim()}`;
         } else if (hasMaelekezo) {
-            previewText = `MANZESE SDA\nHabari Baraka, karibu Ibada ya Anza na Bwana kesho Jpili 12:30 Asubuhi kwa ${hostName} (${maelekezoInput.value.trim()}). Karibu sana!`;
+            previewText = `MANZESE SDA\nHabari Baraka, karibu Ibada ya Anza na Bwana kesho 07/09 saa 12:30 Asb kwa ${hostName} (${maelekezoInput.value.trim()}).`;
         } else {
-            previewText = `MANZESE SDA (SINZA & KIJITONYAMA)\nHabari Baraka, karibu Ibada ya Anza na Bwana kesho Jpili 12:30 Asubuhi kwa ${hostName}. Karibu sana!`;
+            previewText = `MANZESE SDA (SINZA & KIJITONYAMA)\nHabari Baraka, karibu Ibada ya Anza na Bwana kesho 07/09 saa 12:30 Asb kwa ${hostName}.`;
         }
 
         smsPreviewBox.innerText = previewText;
