@@ -580,7 +580,7 @@ def send_bulk_ibada_sms(ibada):
             )
         else:
             message = (
-                f"MANZESE SDA (SINZA & KIJITONYAMA)\n"
+                f"MANZESE SDA\n"
                 f"Habari {first_name}, karibu Ibada ya Anza na Bwana {time_str} "
                 f"{host_str}."
             )
