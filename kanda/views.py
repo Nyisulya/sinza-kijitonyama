@@ -187,6 +187,49 @@ def create_ibada(request):
     return redirect('leader_dashboard')
 
 @leader_required
+def edit_ibada(request, ibada_id):
+    from django.utils.dateparse import parse_datetime
+    
+    ibada = get_object_or_404(Ibada, id=ibada_id)
+    if request.method == 'POST':
+        mwenyeji = request.POST.get('mwenyeji', '').strip()
+        tarehe_muda_str = request.POST.get('tarehe_muda', '').strip()
+        ramani_link = request.POST.get('ramani_link', '').strip()
+        maelekezo = request.POST.get('maelekezo', '').strip()
+        masomo = request.POST.get('masomo', '').strip()
+
+        if not mwenyeji or not tarehe_muda_str:
+            messages.error(request, "Tafadhali jaza Mwenyeji na Tarehe/Muda.")
+            return redirect('leader_dashboard')
+
+        try:
+            naive_datetime = parse_datetime(tarehe_muda_str)
+            if naive_datetime:
+                aware_datetime = timezone.make_aware(naive_datetime, timezone.get_current_timezone())
+                ibada.mwenyeji = mwenyeji
+                ibada.tarehe_muda = aware_datetime
+                ibada.ramani_link = ramani_link if ramani_link else None
+                ibada.maelekezo = maelekezo
+                ibada.masomo = masomo
+                ibada.save()
+                messages.success(request, f"Ibada ya {mwenyeji} imerekebishwa kikamilifu!")
+            else:
+                messages.error(request, "Tarehe na muda si sahihi.")
+        except Exception as e:
+            messages.error(request, f"Imeshindwa kurekebisha ibada: {e}")
+
+    return redirect('leader_dashboard')
+
+@leader_required
+def delete_ibada(request, ibada_id):
+    ibada = get_object_or_404(Ibada, id=ibada_id)
+    if request.method == 'POST':
+        mwenyeji = ibada.mwenyeji
+        ibada.delete()
+        messages.success(request, f"Ibada ya {mwenyeji} imefutwa kikamilifu.")
+    return redirect('leader_dashboard')
+
+@leader_required
 def take_attendance(request, ibada_id):
     ibada = get_object_or_404(Ibada, id=ibada_id)
     washiriki = Mshiriki.objects.filter(is_active=True)
