@@ -387,7 +387,7 @@ def sms_settings(request):
             return redirect('sms_settings')
 
         if action == 'save':
-            sender_id_val = request.POST.get('sender_id', 'NEXTSMS').strip() or 'NEXTSMS'
+            sender_id_val = request.POST.get('sender_id', 'IBADA').strip() or 'IBADA'
             if config:
                 config.api_key = request.POST.get('api_key', '').strip()
                 config.secret_key = request.POST.get('secret_key', '').strip()
@@ -442,7 +442,7 @@ def sms_settings(request):
             return redirect('sms_settings')
 
     if not config:
-        config = SMSConfig.objects.create(api_key="MOCK_KEY", secret_key="MOCK_SECRET", sender_id="IBADA SIFA", is_active=True)
+        config = SMSConfig.objects.create(api_key="MOCK_KEY", secret_key="MOCK_SECRET", sender_id="IBADA", is_active=True)
 
     mock_active = is_mock_mode(config)
     

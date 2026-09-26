@@ -86,7 +86,7 @@ class Uthibitisho(models.Model):
 class SMSConfig(models.Model):
     api_key = models.CharField(max_length=255, blank=True, null=True, verbose_name="Username / API Key ya Next SMS")
     secret_key = models.CharField(max_length=255, blank=True, null=True, verbose_name="Password / Secret Key ya Next SMS")
-    sender_id = models.CharField(max_length=20, default="IBADA SIFA", verbose_name="Sender ID ya SMS")
+    sender_id = models.CharField(max_length=20, default="IBADA", verbose_name="Sender ID ya SMS")
     sms_template = models.TextField(
         default="Habari {jina}, ibada yetu ya Kanda ya Sinza & Kijitonyama itafanyika leo Jumapili kwa familia ya {mwenyeji} saa {muda}. Karibu sana! Ramani: {ramani_link}",
         verbose_name="Kiolezo cha Mwaliko (SMS Template)",

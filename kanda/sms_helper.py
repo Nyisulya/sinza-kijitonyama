@@ -139,13 +139,13 @@ def send_single_sms(dest_phone, message, config=None, mshiriki=None, ibada=None,
     # Mock Mode
     if is_mock_mode(config):
         print(f"--- [MOCK SMS TO {phone_clean}] ---")
-        print(f"Sender ID: {getattr(config, 'sender_id', 'IBADA') or 'IBADA SIFA'}")
+        print(f"Sender ID: {getattr(config, 'sender_id', 'IBADA') or 'IBADA'}")
         print(f"Message: {message}")
         print("---------------------------------")
         _log_sms(mshiriki, ibada, sms_type, phone_clean, message, 'MOCKUP')
         return True
 
-    sender_id = (getattr(config, 'sender_id', '') or 'IBADA SIFA').strip()
+    sender_id = (getattr(config, 'sender_id', '') or 'IBADA').strip()
     api_k = (getattr(config, 'api_key', None) or DEFAULT_NEXT_SMS_API_KEY or '').strip()
     secret_k = (getattr(config, 'secret_key', None) or DEFAULT_NEXT_SMS_SECRET or '').strip()
     auth_headers = get_auth_headers_list(api_k, secret_k)
@@ -269,7 +269,7 @@ def send_test_sms(dest_phone, test_message, config=None):
             "raw_response": "MOCK_MODE_ACTIVE"
         }
 
-    sender_id = (getattr(config, 'sender_id', '') or 'IBADA SIFA').strip()
+    sender_id = (getattr(config, 'sender_id', '') or 'IBADA').strip()
     api_k = (getattr(config, 'api_key', None) or DEFAULT_NEXT_SMS_API_KEY or '').strip()
     secret_k = (getattr(config, 'secret_key', None) or DEFAULT_NEXT_SMS_SECRET or '').strip()
     auth_headers = get_auth_headers_list(api_k, secret_k)
@@ -460,7 +460,7 @@ def check_nextsms_balance(config=None):
 
 DEFAULT_NEXT_SMS_API_KEY = os.getenv('NEXTSMS_API_KEY', '').strip()
 DEFAULT_NEXT_SMS_SECRET = os.getenv('NEXTSMS_SECRET', '').strip()
-DEFAULT_SENDER_ID = os.getenv('NEXTSMS_SENDER_ID', 'IBADA SIFA').strip() or 'IBADA SIFA'
+DEFAULT_SENDER_ID = os.getenv('NEXTSMS_SENDER_ID', 'IBADA').strip() or 'IBADA'
 DEFAULT_PASSCODE = os.getenv('LEADER_PASSCODE', '2010').strip() or '2010'
 
 def get_active_config():
